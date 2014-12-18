@@ -406,7 +406,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		[self _flushStatements];
 	}
 	
-	[extensions enumerateKeysAndObjectsUsingBlock:^(id extNameObj, id extConnectionObj, BOOL *stop) {
+	[extensions enumerateKeysAndObjectsUsingBlock:^(id __unused extNameObj, id extConnectionObj, BOOL __unused *stop) {
 		
 		[(YapDatabaseExtensionConnection *)extConnectionObj _flushMemoryWithFlags:flags];
 	}];
@@ -444,7 +444,7 @@ NS_INLINE BOOL YDBIsMainThread()
 }
 
 #if TARGET_OS_IPHONE
-- (void)didReceiveMemoryWarning:(NSNotification *)notification
+- (void)didReceiveMemoryWarning:(NSNotification __unused *)notification
 {
 	[self flushMemoryWithFlags:[self autoFlushMemoryFlags]];
 }
@@ -2029,7 +2029,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		
 		[database asyncCheckpoint:minSnapshot];
 		
-		[registeredMemoryTables enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+		[registeredMemoryTables enumerateKeysAndObjectsUsingBlock:^(id __unused key, id obj, BOOL __unused *stop) {
 			
 			[(YapMemoryTable *)obj asyncCheckpoint:minSnapshot];
 		}];
@@ -2438,7 +2438,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		{
 			[database asyncCheckpoint:snapshot];
 			
-			[registeredMemoryTables enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+			[registeredMemoryTables enumerateKeysAndObjectsUsingBlock:^(id __unused key, id obj, BOOL __unused *stop) {
 				
 				[(YapMemoryTable *)obj asyncCheckpoint:snapshot];
 			}];
@@ -2972,7 +2972,7 @@ NS_INLINE BOOL YDBIsMainThread()
 	__block NSMutableDictionary *internalChangeset_extensions = nil;
 	__block NSMutableDictionary *externalChangeset_extensions = nil;
 	
-	[extensions enumerateKeysAndObjectsUsingBlock:^(id extName, id extConnectionObj, BOOL *stop) {
+	[extensions enumerateKeysAndObjectsUsingBlock:^(id extName, id extConnectionObj, BOOL __unused *stop) {
 		
 		__unsafe_unretained YapDatabaseExtensionConnection *extConnection = extConnectionObj;
 		
@@ -3157,7 +3157,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		// Use existing extensions (extensions ivar, not [self extensions]).
 		// There's no need to create any new extConnections at this point.
 		
-		[extensions enumerateKeysAndObjectsUsingBlock:^(id extName, id extConnectionObj, BOOL *stop) {
+		[extensions enumerateKeysAndObjectsUsingBlock:^(id extName, id extConnectionObj, BOOL __unused *stop) {
 			
 			__unsafe_unretained YapDatabaseExtensionConnection *extConnection = extConnectionObj;
 			
@@ -3198,7 +3198,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		if (hasRemovedCollections)
 		{
 			__block NSMutableArray *toRemove = nil;
-			[keyCache enumerateKeysAndObjectsWithBlock:^(id key, id obj, BOOL *stop) {
+			[keyCache enumerateKeysAndObjectsWithBlock:^(id key, id obj, BOOL __unused *stop) {
 				
 				__unsafe_unretained NSNumber *rowidNumber = (NSNumber *)key;
 				__unsafe_unretained YapCollectionKey *collectionKey = (YapCollectionKey *)obj;
@@ -3217,7 +3217,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		
 		if (changeset_removedRowids)
 		{
-			[changeset_removedRowids enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+			[changeset_removedRowids enumerateObjectsUsingBlock:^(id obj, BOOL __unused *stop) {
 				
 				[keyCache removeObjectForKey:obj];
 			}];
@@ -3243,7 +3243,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		BOOL isPolicyContainment = (objectPolicy == YapDatabasePolicyContainment);
 		BOOL isPolicyShare       = (objectPolicy == YapDatabasePolicyShare);
 		
-		[changeset_objectChanges enumerateKeysAndObjectsUsingBlock:^(id key, id newObject, BOOL *stop) {
+		[changeset_objectChanges enumerateKeysAndObjectsUsingBlock:^(id key, id newObject, BOOL __unused *stop) {
 			
 			__unsafe_unretained YapCollectionKey *cacheKey = (YapCollectionKey *)key;
 			
@@ -3280,7 +3280,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		NSMutableArray *keysToUpdate = [NSMutableArray arrayWithCapacity:updateCapacity];
 		NSMutableArray *keysToRemove = [NSMutableArray arrayWithCapacity:removeCapacity];
 		
-		[objectCache enumerateKeysWithBlock:^(id key, BOOL *stop) {
+		[objectCache enumerateKeysWithBlock:^(id key, BOOL __unused *stop) {
 			
 			// Order matters.
 			// Consider the following database change:
@@ -3355,7 +3355,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		BOOL isPolicyContainment = (metadataPolicy == YapDatabasePolicyContainment);
 		BOOL isPolicyShare       = (metadataPolicy == YapDatabasePolicyShare);
 		
-		[changeset_metadataChanges enumerateKeysAndObjectsUsingBlock:^(id key, id newMetadata, BOOL *stop) {
+		[changeset_metadataChanges enumerateKeysAndObjectsUsingBlock:^(id key, id newMetadata, BOOL __unused *stop) {
 			
 			__unsafe_unretained YapCollectionKey *cacheKey = (YapCollectionKey *)key;
 			
@@ -3392,7 +3392,7 @@ NS_INLINE BOOL YDBIsMainThread()
 		NSMutableArray *keysToUpdate = [NSMutableArray arrayWithCapacity:updateCapacity];
 		NSMutableArray *keysToRemove = [NSMutableArray arrayWithCapacity:removeCapacity];
 		
-		[metadataCache enumerateKeysWithBlock:^(id key, BOOL *stop) {
+		[metadataCache enumerateKeysWithBlock:^(id key, BOOL __unused *stop) {
 			
 			// Order matters.
 			// Consider the following database change:
@@ -3892,7 +3892,7 @@ NS_INLINE BOOL YDBIsMainThread()
 	
 	if (!extensionsReady)
 	{
-		[registeredExtensions enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+		[registeredExtensions enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL __unused *stop) {
 			
 			__unsafe_unretained NSString *extName = key;
 			__unsafe_unretained YapDatabaseExtension *ext = obj;
@@ -4090,7 +4090,7 @@ NS_INLINE BOOL YDBIsMainThread()
 			// remove rows in yap memory table (where collectionKey.collection == extensionName)
 			NSMutableArray *keysToRemove = [NSMutableArray array];
 			
-			[memoryTableTransaction enumerateKeysWithBlock:^(id key, BOOL *stop) {
+			[memoryTableTransaction enumerateKeysWithBlock:^(id key, BOOL __unused *stop) {
 				
 				__unsafe_unretained YapCollectionKey *ck = (YapCollectionKey *)key;
 				if ([ck.collection isEqualToString:extensionName])

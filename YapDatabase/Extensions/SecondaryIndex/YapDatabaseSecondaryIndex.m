@@ -25,7 +25,7 @@
 
 + (void)dropTablesForRegisteredName:(NSString *)registeredName
                     withTransaction:(YapDatabaseReadWriteTransaction *)transaction
-                      wasPersistent:(BOOL)wasPersistent
+                      wasPersistent:(BOOL __unused)wasPersistent
 {
 	sqlite3 *db = transaction->connection->db;
 	NSString *tableName = [self tableNameForRegisteredName:registeredName];
@@ -174,7 +174,7 @@
  * This method is called during the view registration process to enusre the extension supports
  * the database configuration.
 **/
-- (BOOL)supportsDatabase:(YapDatabase *)database withRegisteredExtensions:(NSDictionary *)registeredExtensions;
+- (BOOL)supportsDatabase:(YapDatabase __unused *)database withRegisteredExtensions:(NSDictionary __unused *)registeredExtensions
 {
 	return YES;
 }

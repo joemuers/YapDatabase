@@ -24,7 +24,7 @@ static const int ydbLogLevel = YDB_LOG_LEVEL_WARN;
 
 + (void)dropTablesForRegisteredName:(NSString *)registeredName
                     withTransaction:(YapDatabaseReadWriteTransaction *)transaction
-                      wasPersistent:(BOOL)wasPersistent
+                      wasPersistent:(BOOL __unused)wasPersistent
 {
 	sqlite3 *db = transaction->connection->db;
 	
@@ -168,7 +168,7 @@ static const int ydbLogLevel = YDB_LOG_LEVEL_WARN;
  * Subclasses must implement this method.
  * This method is called during the view registration process to enusre the extension supports the database config.
 **/
-- (BOOL)supportsDatabase:(YapDatabase *)database withRegisteredExtensions:(NSDictionary *)registeredExtensions
+- (BOOL)supportsDatabase:(YapDatabase __unused *)database withRegisteredExtensions:(NSDictionary __unused *)registeredExtensions
 {
 	return YES;
 }
