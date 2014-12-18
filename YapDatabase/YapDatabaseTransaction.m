@@ -93,7 +93,7 @@
 		restart = NO;
 		prevExtModifiesMainDatabaseTable = NO;
 		
-		[extensions enumerateKeysAndObjectsUsingBlock:^(id extNameObj, id extTransactionObj, BOOL *stop) {
+		[extensions enumerateKeysAndObjectsUsingBlock:^(id __unused extNameObj, id extTransactionObj, BOOL *stop) {
 			
 			BOOL extModifiesMainDatabaseTable =
 			  [(YapDatabaseExtensionTransaction *)extTransactionObj flushPendingChangesToMainDatabaseTable];
@@ -126,7 +126,7 @@
 	// Allow extensions to perform any "cleanup" code needed before the changesets are requested,
 	// and before the commit is executed.
 	
-	[extensions enumerateKeysAndObjectsUsingBlock:^(id extNameObj, id extTransactionObj, BOOL *stop) {
+	[extensions enumerateKeysAndObjectsUsingBlock:^(id __unused extNameObj, id extTransactionObj, BOOL __unused *stop) {
 		
 		[(YapDatabaseExtensionTransaction *)extTransactionObj prepareChangeset];
 	}];
@@ -136,7 +136,7 @@
 {
 	if (isReadWriteTransaction)
 	{
-		[extensions enumerateKeysAndObjectsUsingBlock:^(id extNameObj, id extTransactionObj, BOOL *stop) {
+		[extensions enumerateKeysAndObjectsUsingBlock:^(id __unused extNameObj, id extTransactionObj, BOOL __unused *stop) {
 			
 			[(YapDatabaseExtensionTransaction *)extTransactionObj commitTransaction];
 		}];
@@ -161,7 +161,7 @@
 
 - (void)rollbackTransaction
 {
-	[extensions enumerateKeysAndObjectsUsingBlock:^(id extNameObj, id extTransactionObj, BOOL *stop) {
+	[extensions enumerateKeysAndObjectsUsingBlock:^(id __unused extNameObj, id extTransactionObj, BOOL __unused *stop) {
 		
 		[(YapDatabaseExtensionTransaction *)extTransactionObj rollbackTransaction];
 	}];
@@ -319,7 +319,7 @@
 	NSUInteger count = [self numberOfKeysInCollection:collection];
 	NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
 	
-	[self _enumerateKeysInCollection:collection usingBlock:^(int64_t rowid, NSString *key, BOOL *stop) {
+	[self _enumerateKeysInCollection:collection usingBlock:^(int64_t __unused rowid, NSString *key, BOOL __unused *stop) {
 		
 		[result addObject:key];
 	}];
@@ -1291,7 +1291,7 @@
 {
 	if (block == NULL) return;
 	
-	[self _enumerateKeysInCollection:collection usingBlock:^(int64_t rowid, NSString *key, BOOL *stop) {
+	[self _enumerateKeysInCollection:collection usingBlock:^(int64_t __unused rowid, NSString *key, BOOL *stop) {
 		
 		block(key, stop);
 	}];
@@ -1307,7 +1307,7 @@
 {
 	if (block == NULL) return;
 	
-	[self _enumerateKeysInAllCollectionsUsingBlock:^(int64_t rowid, NSString *collection, NSString *key, BOOL *stop) {
+	[self _enumerateKeysInAllCollectionsUsingBlock:^(int64_t __unused rowid, NSString *collection, NSString *key, BOOL *stop) {
 		
 		block(collection, key, stop);
 	}];
@@ -1348,11 +1348,11 @@
 	if (filter)
 	{
 		[self _enumerateKeysAndMetadataInCollection:collection
-		                                 usingBlock:^(int64_t rowid, NSString *key, id metadata, BOOL *stop) {
+		                                 usingBlock:^(int64_t __unused rowid, NSString *key, id metadata, BOOL *stop) {
 		
 			block(key, metadata, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *key) {
 			
 			return filter(key);
 		}];
@@ -1360,7 +1360,7 @@
 	else
 	{
 		[self _enumerateKeysAndMetadataInCollection:collection
-		                                 usingBlock:^(int64_t rowid, NSString *key, id metadata, BOOL *stop) {
+		                                 usingBlock:^(int64_t __unused rowid, NSString *key, id metadata, BOOL *stop) {
 		
 			block(key, metadata, stop);
 			
@@ -1405,11 +1405,11 @@
 	if (filter)
 	{
 		[self _enumerateKeysAndMetadataInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id metadata, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id metadata, BOOL *stop) {
 			
 			block(collection, key, metadata, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *collection, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *collection, NSString *key) {
 			
 			return filter(collection, key);
 		}];
@@ -1417,7 +1417,7 @@
 	else
 	{
 		[self _enumerateKeysAndMetadataInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id metadata, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id metadata, BOOL *stop) {
 			
 			block(collection, key, metadata, stop);
 			
@@ -1458,11 +1458,11 @@
 	if (filter)
 	{
 		[self _enumerateKeysAndObjectsInCollection:collection
-		                                usingBlock:^(int64_t rowid, NSString *key, id object, BOOL *stop) {
+		                                usingBlock:^(int64_t __unused rowid, NSString *key, id object, BOOL *stop) {
 			
 			block(key, object, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *key) {
 			
 			return filter(key);
 		}];
@@ -1470,7 +1470,7 @@
 	else
 	{
 		[self _enumerateKeysAndObjectsInCollection:collection
-		                                usingBlock:^(int64_t rowid, NSString *key, id object, BOOL *stop) {
+		                                usingBlock:^(int64_t __unused rowid, NSString *key, id object, BOOL *stop) {
 			
 			block(key, object, stop);
 			
@@ -1514,11 +1514,11 @@
 	if (filter)
 	{
 		[self _enumerateKeysAndObjectsInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id object, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id object, BOOL *stop) {
 			
 			block(collection, key, object, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *collection, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *collection, NSString *key) {
 			
 			return filter(collection, key);
 		}];
@@ -1526,7 +1526,7 @@
 	else
 	{
 		[self _enumerateKeysAndObjectsInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id object, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id object, BOOL *stop) {
 			
 			block(collection, key, object, stop);
 			
@@ -1567,11 +1567,11 @@
 	if (filter)
 	{
 		[self _enumerateRowsInCollection:collection
-		                      usingBlock:^(int64_t rowid, NSString *key, id object, id metadata, BOOL *stop) {
+		                      usingBlock:^(int64_t __unused rowid, NSString *key, id object, id metadata, BOOL *stop) {
 			
 			block(key, object, metadata, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *key) {
 			
 			return filter(key);
 		}];
@@ -1579,7 +1579,7 @@
 	else
 	{
 		[self _enumerateRowsInCollection:collection
-		                      usingBlock:^(int64_t rowid, NSString *key, id object, id metadata, BOOL *stop) {
+		                      usingBlock:^(int64_t __unused rowid, NSString *key, id object, id metadata, BOOL *stop) {
 			
 			block(key, object, metadata, stop);
 			
@@ -1623,11 +1623,11 @@
 	if (filter)
 	{
 		[self _enumerateRowsInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id object, id metadata, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id object, id metadata, BOOL *stop) {
 			
 			block(collection, key, object, metadata, stop);
 			
-		} withFilter:^BOOL(int64_t rowid, NSString *collection, NSString *key) {
+		} withFilter:^BOOL(int64_t __unused rowid, NSString *collection, NSString *key) {
 			
 			return filter(collection, key);
 		}];
@@ -1635,7 +1635,7 @@
 	else
 	{
 		[self _enumerateRowsInAllCollectionsUsingBlock:
-		    ^(int64_t rowid, NSString *collection, NSString *key, id object, id metadata, BOOL *stop) {
+		    ^(int64_t __unused rowid, NSString *collection, NSString *key, id object, id metadata, BOOL *stop) {
 			
 			block(collection, key, object, metadata, stop);
 			
@@ -3725,7 +3725,7 @@
 	
 	NSDictionary *extConnections = [connection extensions];
 	
-	[extConnections enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+	[extConnections enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL __unused *stop) {
 		
 		__unsafe_unretained NSString *extName = key;
 		__unsafe_unretained YapDatabaseExtensionConnection *extConnection = obj;
@@ -5038,7 +5038,7 @@
 	
 	{ // keyCache
 		
-		[connection->keyCache enumerateKeysAndObjectsWithBlock:^(id key, id obj, BOOL *stop) {
+		[connection->keyCache enumerateKeysAndObjectsWithBlock:^(id key, id obj, BOOL __unused *stop) {
 			
 			__unsafe_unretained NSNumber *rowidNumber = (NSNumber *)key;
 			__unsafe_unretained YapCollectionKey *collectionKey = (YapCollectionKey *)obj;
@@ -5054,7 +5054,7 @@
 	
 	{ // objectCache
 		
-		[connection->objectCache enumerateKeysWithBlock:^(id key, BOOL *stop) {
+		[connection->objectCache enumerateKeysWithBlock:^(id key, BOOL __unused *stop) {
 			
 			__unsafe_unretained YapCollectionKey *cacheKey = (YapCollectionKey *)key;
 			if ([cacheKey.collection isEqualToString:collection])
@@ -5084,7 +5084,7 @@
 	
 	{ // metadataCache
 		
-		[connection->metadataCache enumerateKeysWithBlock:^(id key, BOOL *stop) {
+		[connection->metadataCache enumerateKeysWithBlock:^(id key, BOOL __unused *stop) {
 			
 			__unsafe_unretained YapCollectionKey *cacheKey = (YapCollectionKey *)key;
 			if ([cacheKey.collection isEqualToString:collection])
