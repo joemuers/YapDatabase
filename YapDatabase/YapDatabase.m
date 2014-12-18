@@ -258,7 +258,7 @@ NSString *const YapDatabaseNotificationKey           = @"notification";
                                     metadataSerializer:(YapDatabaseSerializer)inMetadataSerializer
                                   metadataDeserializer:(YapDatabaseDeserializer)inMetadataDeserializer
                                        objectSanitizer:(YapDatabaseSanitizer)inObjectSanitizer
-                                     metadataSanitizer:(YapDatabaseSanitizer)inMetadataSanitizer;
+                                     metadataSanitizer:(YapDatabaseSanitizer)inMetadataSanitizer
 {
 	return [self initWithPath:inPath
 	         objectSerializer:inObjectSerializer

@@ -174,7 +174,7 @@
  * This method is called during the view registration process to enusre the extension supports
  * the database configuration.
 **/
-- (BOOL)supportsDatabase:(YapDatabase __unused *)database withRegisteredExtensions:(NSDictionary __unused *)registeredExtensions;
+- (BOOL)supportsDatabase:(YapDatabase __unused *)database withRegisteredExtensions:(NSDictionary __unused *)registeredExtensions
 {
 	return YES;
 }
