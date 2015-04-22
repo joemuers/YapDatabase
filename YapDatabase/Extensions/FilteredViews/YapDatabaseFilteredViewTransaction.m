@@ -20,11 +20,6 @@
   static const int ydbLogLevel = YDB_LOG_LEVEL_WARN;
 #endif
 
-static NSString *const ExtKey_classVersion   = @"classVersion";
-static NSString *const ExtKey_parentViewName = @"parentViewName";
-static NSString *const ExtKey_tag_deprecated = @"tag";
-static NSString *const ExtKey_versionTag     = @"versionTag";
-
 @implementation YapDatabaseFilteredViewTransaction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,18 +42,22 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 		// So we can skip all the checks because we know we need to create the memory tables.
 		
 		if (![self createTables]) return NO;
-		if (![self populateView]) return NO;
+		
+		if (!viewConnection->view->options.skipInitialViewPopulation)
+		{
+			if (![self populateView]) return NO;
+		}
 		
 		// Store initial versionTag in prefs table
 		
 		NSString *versionTag = [viewConnection->view versionTag]; // MUST get init value from view
 		
-		[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:NO];
+		[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:NO];
 		
 		// If there was a previously registered persistent view with this name,
 		// then we should drop those tables from the database.
 		
-		BOOL dropPersistentTables = [self getIntValue:NULL forExtensionKey:ExtKey_classVersion persistent:YES];
+		BOOL dropPersistentTables = [self getIntValue:NULL forExtensionKey:ext_key_classVersion persistent:YES];
 		if (dropPersistentTables)
 		{
 			[[viewConnection->view class]
@@ -89,14 +88,14 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 		
 		int oldClassVersion = 0;
 		BOOL hasOldClassVersion = [self getIntValue:&oldClassVersion
-		                            forExtensionKey:ExtKey_classVersion persistent:YES];
+		                            forExtensionKey:ext_key_classVersion persistent:YES];
 		
 		if (!hasOldClassVersion)
 		{
 			// First time registration
 			
 			needsCreateTables = YES;
-			needsPopulateView = YES;
+			needsPopulateView = !viewConnection->view->options.skipInitialViewPopulation;
 		}
 		else if (oldClassVersion != classVersion)
 		{
@@ -104,7 +103,7 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 			
 			[self dropTablesForOldClassVersion:oldClassVersion];
 			needsCreateTables = YES;
-			needsPopulateView = YES;
+			needsPopulateView = YES; // Not initialViewPopulation, but rather codebase upgrade.
 		}
 		
 		// Create the database tables (if needed)
@@ -130,21 +129,21 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 			// Check parentViewName.
 			// Need to re-populate if the parent changed.
 			
-			oldParentViewName = [self stringValueForExtensionKey:ExtKey_parentViewName persistent:YES];
+			oldParentViewName = [self stringValueForExtensionKey:ext_key_parentViewName persistent:YES];
 			
 			if (![oldParentViewName isEqualToString:parentViewName])
 			{
-				needsPopulateView = YES;
+				needsPopulateView = YES;  // Not initialViewPopulation, but rather config change.
 			}
 			
 			// Check user-supplied tag.
 			// We may need to re-populate the database if the groupingBlock or sortingBlock changed.
 			
-			oldVersionTag = [self stringValueForExtensionKey:ExtKey_versionTag persistent:YES];
+			oldVersionTag = [self stringValueForExtensionKey:ext_key_versionTag persistent:YES];
 			
 			if (oldVersionTag == nil)
 			{
-				oldTag_deprecated = [self stringValueForExtensionKey:ExtKey_tag_deprecated persistent:YES];
+				oldTag_deprecated = [self stringValueForExtensionKey:ext_key_tag_deprecated persistent:YES];
 				if (oldTag_deprecated)
 				{
 					oldVersionTag = oldTag_deprecated;
@@ -153,7 +152,7 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 			
 			if (![oldVersionTag isEqualToString:versionTag])
 			{
-				needsPopulateView = YES;
+				needsPopulateView = YES; // Not initialViewPopulation, but rather versionTag upgrade.
 			}
 		}
 		
@@ -167,21 +166,21 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 		// Update yap2 table values (if needed)
 		
 		if (!hasOldClassVersion || (oldClassVersion != classVersion)) {
-			[self setIntValue:classVersion forExtensionKey:ExtKey_classVersion persistent:YES];
+			[self setIntValue:classVersion forExtensionKey:ext_key_classVersion persistent:YES];
 		}
 		
 		if (![oldParentViewName isEqualToString:parentViewName]) {
-			[self setStringValue:parentViewName forExtensionKey:ExtKey_parentViewName persistent:YES];
+			[self setStringValue:parentViewName forExtensionKey:ext_key_parentViewName persistent:YES];
 		}
 		
 		if (oldTag_deprecated)
 		{
-			[self removeValueForExtensionKey:ExtKey_tag_deprecated persistent:YES];
-			[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:YES];
+			[self removeValueForExtensionKey:ext_key_tag_deprecated persistent:YES];
+			[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:YES];
 		}
 		else if (![oldVersionTag isEqualToString:versionTag])
 		{
-			[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:YES];
+			[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:YES];
 		}
 	
 		return YES;
@@ -1408,7 +1407,7 @@ static NSString *const ExtKey_versionTag     = @"versionTag";
 	[self repopulateViewDueToFilteringBlockChange];
 	
 	[self setStringValue:newVersionTag
-	     forExtensionKey:ExtKey_versionTag
+	     forExtensionKey:ext_key_versionTag
 	          persistent:[self isPersistentView]];
 	
 	// Notify any extensions dependent upon this one that we repopulated.

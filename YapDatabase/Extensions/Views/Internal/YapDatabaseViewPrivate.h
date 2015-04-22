@@ -26,6 +26,19 @@
 **/
 #define YAP_DATABASE_VIEW_CLASS_VERSION 3
 
+/**
+ * Keys for yap2 extension configuration table.
+**/
+
+static NSString *const ext_key_classVersion       = @"classVersion";
+static NSString *const ext_key_versionTag         = @"versionTag";
+static NSString *const ext_key_version_deprecated = @"version";     // used by old versions of YapDatabaseView
+static NSString *const ext_key_tag_deprecated     = @"tag";         // used by old versions of YapDatabaseFilteredView
+
+/**
+ * Keys for changeset dictionary.
+**/
+
 static NSString *const changeset_key_state             = @"state";
 static NSString *const changeset_key_dirtyMaps         = @"dirtyMaps";
 static NSString *const changeset_key_dirtyPages        = @"dirtyPages";
@@ -141,6 +154,8 @@ static NSString *const changeset_key_changes           = @"changes";
 
 - (NSArray *)internalChangesetKeys;
 - (NSArray *)externalChangesetKeys;
+
+- (void)prepareStatement:(sqlite3_stmt **)statement withString:(NSString *)stmtString caller:(SEL)caller_cmd;
 
 - (sqlite3_stmt *)mapTable_getPageKeyForRowidStatement;
 - (sqlite3_stmt *)mapTable_setPageKeyForRowidStatement;

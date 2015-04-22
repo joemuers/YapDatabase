@@ -23,6 +23,18 @@ NS_INLINE void sqlite_finalize_null(sqlite3_stmt **stmtPtr)
 	}
 }
 
+#ifndef SQLITE_BIND_START
+#define SQLITE_BIND_START 1
+#endif
+
+#ifndef SQLITE_COL_START
+#define SQLITE_COL_START 0
+#endif
+
+/**
+ * Keys for changeset dictionary.
+**/
+
 extern NSString *const YapDatabaseRegisteredExtensionsKey;
 extern NSString *const YapDatabaseRegisteredMemoryTablesKey;
 extern NSString *const YapDatabaseExtensionsOrderKey;
@@ -30,35 +42,15 @@ extern NSString *const YapDatabaseExtensionDependenciesKey;
 extern NSString *const YapDatabaseRemovedRowidsKey;
 extern NSString *const YapDatabaseNotificationKey;
 
+/**
+ * Key(s) for yap2 extension configuration table.
+ *
+ * This is the only key that is reserved, and should not be set by extension subclasses.
+**/
+static NSString *const ext_key_class = @"class";
+
+
 @interface YapDatabase () {
-@private
-	
-	YapDatabaseOptions *options;
-	
-	NSMutableArray *changesets;
-	uint64_t snapshot;
-	
-	dispatch_queue_t internalQueue;
-	dispatch_queue_t checkpointQueue;
-	
-	YapDatabaseConnectionDefaults *connectionDefaults;
-	
-	NSDictionary *registeredExtensions;
-	NSDictionary *registeredMemoryTables;
-	
-	NSArray *extensionsOrder;
-	NSDictionary *extensionDependencies;
-	
-	YapDatabaseConnection *registrationConnection;
-	
-	NSUInteger maxConnectionPoolCount;
-	NSTimeInterval connectionPoolLifetime;
-	dispatch_source_t connectionPoolTimer;
-	NSMutableArray *connectionPoolValues;
-	NSMutableArray *connectionPoolDates;
-	
-	sqlite3 *db; // Used for setup & checkpoints
-	
 @public
 	
 	void *IsOnSnapshotQueueKey;       // Only to be used by YapDatabaseConnection
@@ -69,22 +61,25 @@ extern NSString *const YapDatabaseNotificationKey;
 	
 	NSMutableArray *connectionStates; // Only to be used by YapDatabaseConnection
 	
-	NSArray *previouslyRegisteredExtensionNames; // Only to be used by YapDatabaseConnection
+	NSArray *previouslyRegisteredExtensionNames; // Writeable only within snapshot queue
 	
-	YapDatabaseSerializer objectSerializer;       // Read-only by transactions
-	YapDatabaseDeserializer objectDeserializer;   // Read-only by transactions
+	YapDatabaseSerializer objectSerializer;         // Read-only by transactions
+	YapDatabaseDeserializer objectDeserializer;     // Read-only by transactions
 	
-	YapDatabaseSerializer metadataSerializer;     // Read-only by transactions
-	YapDatabaseDeserializer metadataDeserializer; // Read-only by transactions
+	YapDatabaseSerializer metadataSerializer;       // Read-only by transactions
+	YapDatabaseDeserializer metadataDeserializer;   // Read-only by transactions
 	
-	YapDatabaseSanitizer objectSanitizer;         // Read-only by transactions
-	YapDatabaseSanitizer metadataSanitizer;       // Read-only by transactions
+	YapDatabasePreSanitizer objectPreSanitizer;     // Read-only by transactions
+	YapDatabasePostSanitizer objectPostSanitizer;   // Read-only by transactions
+	
+	YapDatabasePreSanitizer metadataPreSanitizer;   // Read-only by transactions
+	YapDatabasePostSanitizer metadataPostSanitizer; // Read-only by transactions
 }
 
 /**
  * General utility methods.
 **/
-+ (int)pragma:(NSString *)pragmaSetting using:(sqlite3 *)db;
++ (int)pragma:(NSString *)pragmaSetting using:(sqlite3 *)aDb;
 + (NSString *)pragmaValueForAutoVacuum:(int)auto_vacuum;
 + (NSString *)pragmaValueForSynchronous:(int)synchronous;
 + (BOOL)tableExists:(NSString *)tableName using:(sqlite3 *)aDb;
@@ -172,28 +167,7 @@ extern NSString *const YapDatabaseNotificationKey;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@interface YapDatabaseConnection () {
-@private
-	uint64_t snapshot;
-	
-	id sharedKeySetForInternalChangeset;
-	id sharedKeySetForExternalChangeset;
-	
-	YapDatabaseReadTransaction *longLivedReadTransaction;
-	BOOL throwExceptionsForImplicitlyEndingLongLivedReadTransaction;
-	NSMutableArray *pendingChangesets;
-	NSMutableArray *processedChangesets;
-	
-	NSDictionary *registeredExtensions;
-	BOOL registeredExtensionsChanged;
-	
-	NSDictionary *registeredMemoryTables;
-	BOOL registeredMemoryTablesChanged;
-	
-	NSMutableDictionary *extensions;
-	BOOL extensionsReady;
-	id sharedKeySetForExtensions;
-	
+@interface YapDatabaseConnection () {	
 @public
 	__strong YapDatabase *database;
 	

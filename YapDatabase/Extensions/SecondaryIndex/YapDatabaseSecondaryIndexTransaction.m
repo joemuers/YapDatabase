@@ -21,9 +21,9 @@
   static const int ydbLogLevel = YDB_LOG_LEVEL_WARN;
 #endif
 
-static NSString *const ExtKey_classVersion       = @"classVersion";
-static NSString *const ExtKey_versionTag         = @"versionTag";
-static NSString *const ExtKey_version_deprecated = @"version";
+static NSString *const ext_key_classVersion       = @"classVersion";
+static NSString *const ext_key_versionTag         = @"versionTag";
+static NSString *const ext_key_version_deprecated = @"version";
 
 
 @implementation YapDatabaseSecondaryIndexTransaction
@@ -52,7 +52,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 - (BOOL)createIfNeeded
 {
 	int oldClassVersion = 0;
-	BOOL hasOldClassVersion = [self getIntValue:&oldClassVersion forExtensionKey:ExtKey_classVersion persistent:YES];
+	BOOL hasOldClassVersion = [self getIntValue:&oldClassVersion forExtensionKey:ext_key_classVersion persistent:YES];
 	
 	int classVersion = YAP_DATABASE_SECONDARY_INDEX_CLASS_VERSION;
 	
@@ -67,10 +67,10 @@ static NSString *const ExtKey_version_deprecated = @"version";
 		if (![self createTable]) return NO;
 		if (![self populate]) return NO;
 		
-		[self setIntValue:classVersion forExtensionKey:ExtKey_classVersion persistent:YES];
+		[self setIntValue:classVersion forExtensionKey:ext_key_classVersion persistent:YES];
 		
 		NSString *versionTag = secondaryIndexConnection->secondaryIndex->versionTag;
-		[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:YES];
+		[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:YES];
 	}
 	else
 	{
@@ -79,14 +79,14 @@ static NSString *const ExtKey_version_deprecated = @"version";
 		
 		NSString *versionTag = secondaryIndexConnection->secondaryIndex->versionTag;
 		
-		NSString *oldVersionTag = [self stringValueForExtensionKey:ExtKey_versionTag persistent:YES];
+		NSString *oldVersionTag = [self stringValueForExtensionKey:ext_key_versionTag persistent:YES];
 		
 		BOOL hasOldVersion_deprecated = NO;
 		if (oldVersionTag == nil)
 		{
 			int oldVersion_deprecated = 0;
 			hasOldVersion_deprecated = [self getIntValue:&oldVersion_deprecated
-			                             forExtensionKey:ExtKey_version_deprecated persistent:YES];
+			                             forExtensionKey:ext_key_version_deprecated persistent:YES];
 			
 			if (hasOldVersion_deprecated)
 			{
@@ -100,15 +100,15 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			if (![self createTable]) return NO;
 			if (![self populate]) return NO;
 			
-			[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:YES];
+			[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:YES];
 			
 			if (hasOldVersion_deprecated)
-				[self removeValueForExtensionKey:ExtKey_version_deprecated persistent:YES];
+				[self removeValueForExtensionKey:ext_key_version_deprecated persistent:YES];
 		}
 		else if (hasOldVersion_deprecated)
 		{
-			[self removeValueForExtensionKey:ExtKey_version_deprecated persistent:YES];
-			[self setStringValue:versionTag forExtensionKey:ExtKey_versionTag persistent:YES];
+			[self removeValueForExtensionKey:ext_key_version_deprecated persistent:YES];
+			[self setStringValue:versionTag forExtensionKey:ext_key_versionTag persistent:YES];
 		}
 		
 		// The following code is designed to assist developers in understanding extension changes.
@@ -467,10 +467,10 @@ static NSString *const ExtKey_version_deprecated = @"version";
 	//  isNew : INSERT            INTO "tableName" ("rowid", "column1", "column2", ...) VALUES (?, ?, ? ...);
 	// !isNew : INSERT OR REPLACE INTO "tableName" ("rowid", "column1", "column2", ...) VALUES (?, ?, ? ...);
 	
-	int i = 1;
+	int bind_idx = SQLITE_BIND_START;
 	
-	sqlite3_bind_int64(statement, i, rowid);
-	i++;
+	sqlite3_bind_int64(statement, bind_idx, rowid);
+	bind_idx++;
 	
 	for (YapDatabaseSecondaryIndexColumn *column in secondaryIndexConnection->secondaryIndex->setup)
 	{
@@ -484,7 +484,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 					__unsafe_unretained NSNumber *cast = (NSNumber *)columnValue;
 					
 					int64_t num = [cast longLongValue];
-					sqlite3_bind_int64(statement, i, (sqlite3_int64)num);
+					sqlite3_bind_int64(statement, bind_idx, (sqlite3_int64)num);
 				}
 				else
 				{
@@ -500,14 +500,14 @@ static NSString *const ExtKey_version_deprecated = @"version";
 					__unsafe_unretained NSNumber *cast = (NSNumber *)columnValue;
 					
 					double num = [cast doubleValue];
-					sqlite3_bind_double(statement, i, num);
+					sqlite3_bind_double(statement, bind_idx, num);
 				}
 				else if ([columnValue isKindOfClass:[NSDate class]])
 				{
 					__unsafe_unretained NSDate *cast = (NSDate *)columnValue;
 					
 					double num = [cast timeIntervalSinceReferenceDate];
-					sqlite3_bind_double(statement, i, num);
+					sqlite3_bind_double(statement, bind_idx, num);
 				}
 				else
 				{
@@ -522,7 +522,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 				{
 					__unsafe_unretained NSString *cast = (NSString *)columnValue;
 					
-					sqlite3_bind_text(statement, i, [cast UTF8String], -1, SQLITE_TRANSIENT);
+					sqlite3_bind_text(statement, bind_idx, [cast UTF8String], -1, SQLITE_TRANSIENT);
 				}
 				else
 				{
@@ -533,7 +533,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			}
 		}
 		
-		i++;
+		bind_idx++;
 	}
 	
 	int status = sqlite3_step(statement);
@@ -559,7 +559,9 @@ static NSString *const ExtKey_version_deprecated = @"version";
 	
 	// DELETE FROM "tableName" WHERE "rowid" = ?;
 	
-	sqlite3_bind_int64(statement, 1, rowid);
+	int const bind_idx_rowid = SQLITE_BIND_START;
+	
+	sqlite3_bind_int64(statement, bind_idx_rowid, rowid);
 	
 	int status = sqlite3_step(statement);
 	if (status != SQLITE_DONE)
@@ -624,7 +626,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 	{
 		int64_t rowid = [[rowids objectAtIndex:i] longLongValue];
 		
-		sqlite3_bind_int64(statement, (int)(i + 1), rowid);
+		sqlite3_bind_int64(statement, (int)(SQLITE_BIND_START + i), rowid);
 	}
 	
 	status = sqlite3_step(statement);
@@ -673,7 +675,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 /**
  * Required override method from YapDatabaseExtension
 **/
-- (void)commitTransaction
+- (void)didCommitTransaction
 {
 	// An extensionTransaction is only valid within the scope of its encompassing databaseTransaction.
 	// I imagine this may occasionally be misunderstood, and developers may attempt to store the extension in an ivar,
@@ -687,7 +689,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 /**
  * Required override method from YapDatabaseExtension
 **/
-- (void)rollbackTransaction
+- (void)didRollbackTransaction
 {
 	// An extensionTransaction is only valid within the scope of its encompassing databaseTransaction.
 	// I imagine this may occasionally be misunderstood, and developers may attempt to store the extension in an ivar,
@@ -1090,7 +1092,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 	
 	// Bind query parameters appropriately.
 	
-	int i = 1;
+	int bind_idx = SQLITE_BIND_START;
 	for (id value in query.queryParameters)
 	{
 		if ([value isKindOfClass:[NSNumber class]])
@@ -1106,12 +1108,12 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			    numType == kCFNumberCGFloatType  )
 			{
 				double num = [cast doubleValue];
-				sqlite3_bind_double(statement, i, num);
+				sqlite3_bind_double(statement, bind_idx, num);
 			}
 			else
 			{
 				int64_t num = [cast longLongValue];
-				sqlite3_bind_int64(statement, i, (sqlite3_int64)num);
+				sqlite3_bind_int64(statement, bind_idx, (sqlite3_int64)num);
 			}
 		}
 		else if ([value isKindOfClass:[NSDate class]])
@@ -1119,20 +1121,20 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			__unsafe_unretained NSDate *cast = (NSDate *)value;
 			
 			double num = [cast timeIntervalSinceReferenceDate];
-			sqlite3_bind_double(statement, i, num);
+			sqlite3_bind_double(statement, bind_idx, num);
 		}
 		else if ([value isKindOfClass:[NSString class]])
 		{
 			__unsafe_unretained NSString *cast = (NSString *)value;
 			
-			sqlite3_bind_text(statement, i, [cast UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(statement, bind_idx, [cast UTF8String], -1, SQLITE_TRANSIENT);
 		}
 		else
 		{
 			YDBLogWarn(@"Unable to bind value for with unsupported class: %@", NSStringFromClass([value class]));
 		}
 		
-		i++;
+		bind_idx++;
 	}
 	
 	// Enumerate query results
@@ -1148,7 +1150,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 		
 		do
 		{
-			int64_t rowid = sqlite3_column_int64(statement, 0);
+			int64_t rowid = sqlite3_column_int64(statement, SQLITE_COL_START);
 			
 			block(rowid, &stop);
 			
@@ -1292,7 +1294,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 	
 	// Bind query parameters appropriately.
 	
-	int i = 1;
+	int bind_idx = SQLITE_BIND_START;
 	for (id value in query.queryParameters)
 	{
 		if ([value isKindOfClass:[NSNumber class]])
@@ -1308,12 +1310,12 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			    numType == kCFNumberCGFloatType  )
 			{
 				double num = [cast doubleValue];
-				sqlite3_bind_double(statement, i, num);
+				sqlite3_bind_double(statement, bind_idx, num);
 			}
 			else
 			{
 				int64_t num = [cast longLongValue];
-				sqlite3_bind_int64(statement, i, (sqlite3_int64)num);
+				sqlite3_bind_int64(statement, bind_idx, (sqlite3_int64)num);
 			}
 		}
 		else if ([value isKindOfClass:[NSDate class]])
@@ -1321,20 +1323,20 @@ static NSString *const ExtKey_version_deprecated = @"version";
 			__unsafe_unretained NSDate *cast = (NSDate *)value;
 			
 			double num = [cast timeIntervalSinceReferenceDate];
-			sqlite3_bind_double(statement, i, num);
+			sqlite3_bind_double(statement, bind_idx, num);
 		}
 		else if ([value isKindOfClass:[NSString class]])
 		{
 			__unsafe_unretained NSString *cast = (NSString *)value;
 			
-			sqlite3_bind_text(statement, i, [cast UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(statement, bind_idx, [cast UTF8String], -1, SQLITE_TRANSIENT);
 		}
 		else
 		{
 			YDBLogWarn(@"Unable to bind value for with unsupported class: %@", NSStringFromClass([value class]));
 		}
 		
-		i++;
+		bind_idx++;
 	}
 	
 	// Execute query
@@ -1348,7 +1350,7 @@ static NSString *const ExtKey_version_deprecated = @"version";
 		if (databaseTransaction->connection->needsMarkSqlLevelSharedReadLock)
 			[databaseTransaction->connection markSqlLevelSharedReadLockAcquired];
 		
-		count = (NSUInteger)sqlite3_column_int64(statement, 0);
+		count = (NSUInteger)sqlite3_column_int64(statement, SQLITE_COL_START);
 	}
 	else if (status == SQLITE_ERROR)
 	{

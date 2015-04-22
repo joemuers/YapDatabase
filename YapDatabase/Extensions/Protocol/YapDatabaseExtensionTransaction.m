@@ -56,6 +56,8 @@
 */
 }
 
+#pragma mark Creation
+
 /**
  * Subclasses MUST implement this method.
  * 
@@ -66,7 +68,7 @@
  * as well as possibly populating the tables by enumerating over the existing rows in the database.
  * 
  * The method should check to see if it has already been created.
- * That is, is this a re-registration from a subsequent app launch,
+ * That is, is this a re-registration from a previous app launch,
  * or is this the first time the extension has been registered under this name?
  * 
  * The recommended way of accomplishing this is via the yap2 table (which was designed for this purpose).
@@ -118,6 +120,10 @@
 	return NO;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark Commit & Rollback
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Subclasses may OPTIONALLY implement this method.
  * This method is only called if within a readwrite transaction.
@@ -133,6 +139,7 @@
 **/
 - (BOOL)flushPendingChangesToMainDatabaseTable
 {
+	// Override me if needed
 	return NO;
 }
 
@@ -140,40 +147,49 @@
  * Subclasses may OPTIONALLY implement this method.
  * This method is only called if within a readwrite transaction.
  *
- * Subclasses may implement it to perform any "cleanup" before the changeset is requested.
- * Remember, the changeset is requested before the commitTransaction method is invoked.
+ * Subclasses should write any last changes to their database table(s) if needed,
+ * and should perform any needed cleanup before the changeset is requested.
+ * 
+ * Remember, the changeset is requested immediately after this method is invoked.
 **/
-- (void)prepareChangeset
+- (void)flushPendingChangesToExtensionTables
 {
-	// Subclasses may optionally override this method to perform any "cleanup" before the changesets are requested.
-	// Remember, the changesets are requested before the commitTransaction method is invoked.
+	// Override me if needed
 }
 
 /**
  * Subclasses MUST implement this method.
  * This method is only called if within a readwrite transaction.
+ * 
+ * Remember, the transaction cannot make any changes to the database at this point,
+ * as this method is called after the transaction has completed.
+ * This method is primarily for cleanup & related tasks.
 **/
-- (void)commitTransaction
+- (void)didCommitTransaction
 {
 	NSAssert(NO, @"Missing required override method(%@) in class(%@)", NSStringFromSelector(_cmd), [self class]);
 	
-	// Subclasses should include the code similar to the following at the end of their implementation:
+	// Subclasses MUST include the code similar to the following at the end of their implementation:
 	//
-	// viewConnection = nil;
+	// extConnection = nil;
 	// databaseTransaction = nil;
 }
 
 /**
  * Subclasses MUST implement this method.
  * This method is only called if within a readwrite transaction.
+ * 
+ * Remember, the transaction cannot make any changes to the database at this point,
+ * as this method is called after the transaction has aborted.
+ * This method is primarily for cleanup & related tasks.
 **/
-- (void)rollbackTransaction
+- (void)didRollbackTransaction
 {
 	NSAssert(NO, @"Missing required override method(%@) in class(%@)", NSStringFromSelector(_cmd), [self class]);
 	
-	// Subclasses should include the code similar to the following at the end of their implementation:
+	// Subclasses MUST include the code similar to the following at the end of their implementation:
 	//
-	// viewConnection = nil;
+	// extConnection = nil;
 	// databaseTransaction = nil;
 }
 
@@ -206,10 +222,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction setObject:object forKey:key inCollection:collection] &
- *                [transaction setObject:object forKey:key inCollection:collection withMetadata:metadata]
- * where the object is being inserted (value for collection/key does NOT exist at the moment this method is called).
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - setObject:forKey:inCollection:
+ * - setObject:forKey:inCollection:withMetadata:
+ * - setObject:forKey:inCollection:withMetadata:serializedObject:serializedMetadata:
+ *
+ * The row is being inserted, meaning there is not currently an entry for the collection/key tuple.
 **/
 - (void)handleInsertObject:(id __unused)object
           forCollectionKey:(YapCollectionKey __unused *)collectionKey
@@ -220,10 +241,15 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction setObject:object forKey:key inCollection:collection] &
- *                [transaction setObject:object forKey:key inCollection:collection withMetadata:metadata]
- * where the object is being updated (value for collection/key DOES exist, and is being updated/changed).
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - setObject:forKey:inCollection:
+ * - setObject:forKey:inCollection:withMetadata:
+ * - setObject:forKey:inCollection:withMetadata:serializedObject:serializedMetadata:
+ *
+ * The row is being modified, meaning there is already an entry for the collection/key tuple which is being modified.
 **/
 - (void)handleUpdateObject:(id __unused)object
           forCollectionKey:(YapCollectionKey __unused *)collectionKey
@@ -234,8 +260,14 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction replaceObject:object forKey:key inCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - replaceObject:forKey:inCollection:
+ * - replaceObject:forKey:inCollection:withSerializedObject:
+ * 
+ * There is already a row for the collection/key tuple, and only the object is being modified (metadata untouched).
 **/
 - (void)handleReplaceObject:(id __unused)object
            forCollectionKey:(YapCollectionKey __unused *)collectionKey
@@ -245,8 +277,14 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction replaceMetadata:metadata forKey:key inCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - replaceMetadata:forKey:inCollection:
+ * - replaceMetadata:forKey:inCollection:withSerializedMetadata:
+ * 
+ * There is already a row for the collection/key tuple, and only the metadata is being modified (object untouched).
 **/
 - (void)handleReplaceMetadata:(id __unused)metadata
              forCollectionKey:(YapCollectionKey __unused *)collectionKey
@@ -256,8 +294,11 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction touchObjectForKey:key inCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - touchObjectForKey:inCollection:collection:
 **/
 - (void)handleTouchObjectForCollectionKey:(YapCollectionKey __unused *)collectionKey withRowid:(int64_t __unused)rowid
 {
@@ -265,8 +306,11 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction touchMetadataForKey:key inCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - touchMetadataForKey:inCollection:
 **/
 - (void)handleTouchMetadataForCollectionKey:(YapCollectionKey __unused *)collectionKey withRowid:(int64_t __unused)rowid
 {
@@ -274,8 +318,11 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * Corresponds to [transaction removeObjectForKey:key inCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction
+ * - removeObjectForKey:inCollection:
 **/
 - (void)handleRemoveObjectForCollectionKey:(YapCollectionKey __unused *)collectionKey withRowid:(int64_t __unused)rowid
 {
@@ -283,10 +330,12 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
- * 
- * Corresponds to [transaction removeObjectsForKeys:keys inCollection:collection] &
- *                [transaction removeAllObjectsInCollection:collection].
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - removeObjectsForKeys:inCollection:
+ * - removeAllObjectsInCollection:
  *
  * IMPORTANT:
  *   The number of items passed to this method has the following guarantee:
@@ -301,12 +350,133 @@
 }
 
 /**
+ * Subclasses MUST implement this method.
  * YapDatabaseReadWriteTransaction Hook, invoked post-op.
+ *
  * Corresponds to [transaction removeAllObjectsInAllCollections].
 **/
 - (void)handleRemoveAllObjectsInAllCollections
 {
 	NSAssert(NO, @"Missing required override method(%@) in class(%@)", NSStringFromSelector(_cmd), [self class]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark Pre-Hooks
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ * 
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - setObject:forKey:inCollection:
+ * - setObject:forKey:inCollection:withMetadata:
+ * - setObject:forKey:inCollection:withMetadata:serializedObject:serializedMetadata:
+ *
+ * The row is being inserted, meaning there is not currently an entry for the collection/key tuple.
+**/
+- (void)handleWillInsertObject:(id)object
+              forCollectionKey:(YapCollectionKey *)collectionKey
+                  withMetadata:(id)metadata
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ * 
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - setObject:forKey:inCollection:
+ * - setObject:forKey:inCollection:withMetadata:
+ * - setObject:forKey:inCollection:withMetadata:serializedObject:serializedMetadata:
+ *
+ * The row is being modified, meaning there is already an entry for the collection/key tuple which is being modified.
+**/
+- (void)handleWillUpdateObject:(id)object
+              forCollectionKey:(YapCollectionKey *)collectionKey
+                  withMetadata:(id)metadata
+                         rowid:(int64_t)rowid
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ * 
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - replaceObject:forKey:inCollection:
+ * - replaceObject:forKey:inCollection:withSerializedObject:
+ *
+ * There is already a row for the collection/key tuple, and only the object is being modified (metadata untouched).
+**/
+- (void)handleWillReplaceObject:(id)object
+               forCollectionKey:(YapCollectionKey *)collectionKey
+                      withRowid:(int64_t)rowid
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - replaceMetadata:forKey:inCollection:
+ * - replaceMetadata:forKey:inCollection:withSerializedMetadata:
+ *
+ * There is already a row for the collection/key tuple, and only the metadata is being modified (object untouched).
+**/
+- (void)handleWillReplaceMetadata:(id)metadata
+                 forCollectionKey:(YapCollectionKey *)collectionKey
+                        withRowid:(int64_t)rowid
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - removeObjectForKey:inCollection:
+**/
+- (void)handleWillRemoveObjectForCollectionKey:(YapCollectionKey *)collectionKey withRowid:(int64_t)rowid
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - removeObjectsForKeys:inCollection:
+ * - removeAllObjectsInCollection:
+ *
+ * IMPORTANT:
+ *   The number of items passed to this method has the following guarantee:
+ *   count <= (SQLITE_LIMIT_VARIABLE_NUMBER - 1)
+ *
+ * The YapDatabaseReadWriteTransaction will inspect the list of keys that are to be removed,
+ * and then loop over them in "chunks" which are readily processable for extensions.
+**/
+- (void)handleWillRemoveObjectsForKeys:(NSArray *)keys inCollection:(NSString *)collection withRowids:(NSArray *)rowids
+{
+	// Override me if needed
+}
+
+/**
+ * Subclasses may OPTIONALLY implement this method.
+ * YapDatabaseReadWriteTransaction Hook, invoked pre-op.
+ *
+ * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
+ * - removeAllObjectsInAllCollections
+**/
+- (void)handleWillRemoveAllObjectsInAllCollections
+{
+	// Override me if needed
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
