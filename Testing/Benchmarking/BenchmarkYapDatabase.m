@@ -171,8 +171,11 @@ static NSMutableArray *keys;
 	
 	NSTimeInterval elapsed = [start timeIntervalSinceNow] * -1.0;
 	
-	NSLog(@"Fetch %lu random objs: total time: %.6f, average time per obj: %.6f (cache hit %%: %.2f)",
-		  (unsigned long)loopCount, elapsed, (elapsed / loopCount), hitPercentage);
+	double avg = (elapsed / loopCount);
+	double perSec = 1.0 / avg;
+	
+	NSLog(@"Fetch %lu random objs (cache hit %%: %.2f): total time: %.6f, avg time per obj: %.6f, obj per sec: %.0f",
+		  (unsigned long)loopCount, hitPercentage, elapsed, avg, perSec);
 }
 
 + (void)readTransactionOverhead:(NSUInteger)loopCount withLongLivedReadTransaction:(BOOL)useLongLivedReadTransaction
@@ -243,6 +246,8 @@ static NSMutableArray *keys;
 //	options.pragmaSynchronous = YapDatabasePragmaSynchronous_Normal; // Use for faster speed
 //	options.pragmaSynchronous = YapDatabasePragmaSynchronous_Off;    // Use for fastest speed
 
+	options.pragmaMMapSize = (1024 * 1024 * 25); // full file size, with max of 25 MB
+	
 	database = [[YapDatabase alloc] initWithPath:databasePath
 	                                  serializer:NULL
 	                                deserializer:NULL
@@ -259,8 +264,20 @@ static NSMutableArray *keys;
 	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		
+		NSString *pragmaSynchronousStr;
+		switch(options.pragmaSynchronous)
+		{
+			case YapDatabasePragmaSynchronous_Off    : pragmaSynchronousStr = @"Off";     break;
+			case YapDatabasePragmaSynchronous_Normal : pragmaSynchronousStr = @"Normal";  break;
+			case YapDatabasePragmaSynchronous_Full   : pragmaSynchronousStr = @"Full";    break;
+			default                                  : pragmaSynchronousStr = @"Unknown"; break;
+		}
+		
 		NSLog(@" \n\n\n ");
-		NSLog(@"YapDatabase Benchmarks: (sqlite %@)", database.sqliteVersion);
+		NSLog(@"YapDatabase Benchmarks:");
+		NSLog(@" - sqlite version     = %@", database.sqliteVersion);
+		NSLog(@" - pragma synchronous = %@", pragmaSynchronousStr);
+		NSLog(@" - pragma mmap_size   = %ld", (long)[connection pragmaMMapSize]);
 		NSLog(@"====================================================");
 		NSLog(@"POPULATE DATABASE");
 		
@@ -310,6 +327,7 @@ static NSMutableArray *keys;
 		
 		database = nil;
 		connection = nil;
+		keys = nil;
 		
 		completionBlock();
 	});

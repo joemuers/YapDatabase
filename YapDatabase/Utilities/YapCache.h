@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 
-#ifndef YAP_CACHE_STATISTICS
-#define YAP_CACHE_STATISTICS 0
+#ifndef YapCache_Enable_Statistics
+  #define YapCache_Enable_Statistics 0
 #endif
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * YapCache implements a simple strict cache.
@@ -34,8 +36,7 @@
  * And thus performing this action (if desired) is up to you.
  * The various YapDatabase classes which use it do this themselves.
 **/
-
-@interface YapCache : NSObject
+@interface YapCache<KeyType, ObjectType> : NSObject
 
 /**
  * Initializes a cache.
@@ -97,32 +98,32 @@
  * In general, assertions are disabled when you compile for release.
  * But to be precise, the checks are only run if NS_BLOCK_ASSERTIONS is not defined.
 **/
-@property (nonatomic, copy, readwrite) NSSet *allowedKeyClasses;
-@property (nonatomic, copy, readwrite) NSSet *allowedObjectClasses;
+@property (nonatomic, copy, readwrite, nullable) NSSet<Class> *allowedKeyClasses;
+@property (nonatomic, copy, readwrite, nullable) NSSet<Class> *allowedObjectClasses;
 
 //
 // The normal cache stuff...
 //
 
-- (void)setObject:(id)object forKey:(id)key;
+- (void)setObject:(ObjectType)object forKey:(KeyType)key;
 
-- (id)objectForKey:(id)key;
-- (BOOL)containsKey:(id)key;
+- (nullable ObjectType)objectForKey:(KeyType)key;
+- (BOOL)containsKey:(KeyType)key;
 
 - (NSUInteger)count;
 
 - (void)removeAllObjects;
-- (void)removeObjectForKey:(id)key;
-- (void)removeObjectsForKeys:(NSArray *)keys;
+- (void)removeObjectForKey:(KeyType)key;
+- (void)removeObjectsForKeys:(id <NSFastEnumeration>)keys;
 
-- (void)enumerateKeysWithBlock:(void (^)(id key, BOOL *stop))block;
-- (void)enumerateKeysAndObjectsWithBlock:(void (^)(id key, id obj, BOOL *stop))block;
+- (void)enumerateKeysWithBlock:(void (^)(KeyType key, BOOL *stop))block;
+- (void)enumerateKeysAndObjectsWithBlock:(void (^)(KeyType key, ObjectType obj, BOOL *stop))block;
 
 //
 // Some debugging stuff that gets compiled out
 //
 
-#if YAP_CACHE_STATISTICS
+#if YapCache_Enable_Statistics
 
 /**
  * When querying the cache for an object via objectForKey,
@@ -142,3 +143,5 @@
 #endif
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
+// Macro for lazy programmer (less typing than alloc/init)
+#define YapCollectionKeyCreate(_collection, _key) [[YapCollectionKey alloc] initWithCollection:_collection key:_key]
 
 /**
  * An efficient collection/key tuple class.
@@ -9,7 +13,7 @@
 **/
 @interface YapCollectionKey : NSObject <NSCopying, NSCoding>
 
-- (id)initWithCollection:(NSString *)collection key:(NSString *)key;
+- (id)initWithCollection:(nullable NSString *)collection key:(NSString *)key;
 
 @property (nonatomic, strong, readonly) NSString *collection;
 @property (nonatomic, strong, readonly) NSString *key;
@@ -17,17 +21,19 @@
 - (BOOL)isEqualToCollectionKey:(YapCollectionKey *)collectionKey;
 
 // These methods are overriden and optimized:
-- (BOOL)isEqual:(id)anObject;
+- (BOOL)isEqual:(nullable id)anObject;
 - (NSUInteger)hash;
+
+// C versions for low-level optimizations:
+
+BOOL YapCollectionKeyEqual(const __unsafe_unretained YapCollectionKey *ck1,
+                           const __unsafe_unretained YapCollectionKey *ck2);
+
+CFHashCode YapCollectionKeyHash(const __unsafe_unretained YapCollectionKey *ck);
 
 // For optimizing usage in YapCache
 + (CFDictionaryKeyCallBacks)keyCallbacks;
 
-// Super optimized (c function call faster than obj-c method invocation):
-BOOL YapCollectionKeyEqual(const __unsafe_unretained YapCollectionKey *ck1,
-                           const __unsafe_unretained YapCollectionKey *ck2);
-
-// Lazy programmer (less typing than alloc/init)
-YapCollectionKey* YapCollectionKeyCreate(NSString *collection, NSString *key);
-
 @end
+
+NS_ASSUME_NONNULL_END

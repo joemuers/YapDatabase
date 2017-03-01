@@ -2,17 +2,17 @@
 #import "DatabaseManager.h"
 #import "AppDelegate.h"
 #import "MyTodo.h"
-#import "DDLog.h"
 
 #import <CloudKit/CloudKit.h>
 #import <Reachability/Reachability.h>
+#import <CocoaLumberjack/CocoaLumberjack.h>
 
 // Log Levels: off, error, warn, info, verbose
 // Log Flags : trace
 #if DEBUG
-  static const int ddLogLevel = LOG_LEVEL_ALL;
+  static const NSUInteger ddLogLevel = DDLogLevelAll;
 #else
-  static const int ddLogLevel = LOG_LEVEL_ALL;
+  static const NSUInteger ddLogLevel = DDLogLevelAll;
 #endif
 
 CloudKitManager *MyCloudKitManager;
@@ -321,7 +321,9 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 		
 		dispatch_resume(setupQueue);
 	};
-		
+	
+	modifyRecordZonesOperation.allowsCellularAccess = YES;
+	
 	[[[CKContainer defaultContainer] privateCloudDatabase] addOperation:modifyRecordZonesOperation];
 }
 
@@ -385,6 +387,8 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 		
 		dispatch_resume(setupQueue);
 	};
+	
+	modifySubscriptionsOperation.allowsCellularAccess = YES;
 	
 	[[[CKContainer defaultContainer] privateCloudDatabase] addOperation:modifySubscriptionsOperation];
 }
@@ -493,6 +497,23 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 		DDLogVerbose(@"CKFetchRecordChangesOperation: serverChangeToken: %@", newServerChangeToken);
 		DDLogVerbose(@"CKFetchRecordChangesOperation: clientChangeTokenData: %@", clientChangeTokenData);
 		
+		// Edge Case:
+		//
+		// I've witnessed the following on a fresh app launch on the device (first run after install):
+		// The first fetchRecordChanges returns:
+		// - no deletedRecordIDs
+		// - no changedRecords
+		// - a serverChangeToken
+		// - and moreComing == YES
+		//
+		// So, oddly enough, this results in (UIBackgroundFetchResultNoData, moreComing==YES).
+		//
+		// Which seems non-intuitive to me, but that's what we're getting from the server.
+		// And, in fact, if we don't follow that up with another fetch,
+		// then we fail to properly fetch what's on the server.
+		
+		BOOL moreComing = weakOperation.moreComing;
+		
 		BOOL hasChanges = NO;
 		if (!operationError)
 		{
@@ -501,7 +522,7 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 			else if (changedRecords.count > 0)
 				hasChanges = YES;
 			
-			self.lastSuccessfulFetchResultWasNoData = (hasChanges == NO);
+			self.lastSuccessfulFetchResultWasNoData = (!hasChanges && !moreComing);
 		}
 		
 		if (operationError)
@@ -530,8 +551,10 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 			}
 			dispatch_resume(fetchQueue);
 		}
-		else if (!hasChanges)
+		else if (!hasChanges && !moreComing)
 		{
+			DDLogVerbose(@"CKFetchRecordChangesOperation: !hasChanges && !moreComing");
+			
 			// Just to be safe, we're going to go ahead and save the newServerChangeToken.
 			//
 			// By the way:
@@ -551,10 +574,8 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 			}
 			dispatch_resume(fetchQueue);
 		}
-		else // if (hasChanges)
+		else // if (hasChanges || moreComing)
 		{
-			BOOL moreComing = weakOperation.moreComing;
-			
 			DDLogVerbose(@"CKFetchRecordChangesOperation: deletedRecordIDs: %@", deletedRecordIDs);
 			DDLogVerbose(@"CKFetchRecordChangesOperation: changedRecords: %@", changedRecords);
 			
@@ -646,10 +667,6 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 				
 			} completionBlock:^{
 				
-				if (moreComing) {
-					[self _fetchRecordChangesWithCompletionHandler:completionHandler];
-				}
-				
 				if (completionHandler)
 				{
 					if (hasChanges)
@@ -657,11 +674,19 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 					else
 						completionHandler(UIBackgroundFetchResultNoData, moreComing);
 				}
-				dispatch_resume(fetchQueue);
+				
+				if (moreComing) {
+					[self _fetchRecordChangesWithCompletionHandler:completionHandler];
+				}
+				else {
+					dispatch_resume(fetchQueue);
+				}
 			}];
 		
 		} // end if (hasChanges)
 	};
+	
+	operation.allowsCellularAccess = YES;
 	
 	[[[CKContainer defaultContainer] privateCloudDatabase] addOperation:operation];
 }
@@ -721,6 +746,8 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 			}];
 		}
 	};
+	
+	operation.allowsCellularAccess = YES;
 	
 	[[[CKContainer defaultContainer] privateCloudDatabase] addOperation:operation];
 }
@@ -831,7 +858,7 @@ static NSString *const Key_ServerChangeToken   = @"serverChangeToken";
 {
 	DDLogInfo(@"%@ - %@", THIS_FILE, THIS_METHOD);
 	
-	YDBCKChangeSet *failedChangeSet = [[MyDatabaseManager.cloudKitExtension pendingChangeSets] firstObject];
+	YDBCKChangeSet *failedChangeSet = [MyDatabaseManager.cloudKitExtension currentChangeSet];
 	NSArray *recordIDs = failedChangeSet.recordIDsToSave;
 	
 	if (recordIDs.count == 0)

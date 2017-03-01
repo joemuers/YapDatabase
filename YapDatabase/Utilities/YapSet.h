@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * The YapSet class can be treated more or less like a regular NSSet.
  *
@@ -20,6 +22,8 @@
 
 // NSSet methods
 
+@property (nonatomic, readonly) NSUInteger count;
+
 - (BOOL)containsObject:(id)anObject;
 - (BOOL)intersectsSet:(NSSet *)otherSet;
 
@@ -39,3 +43,5 @@
 // https://github.com/yapstudios/YapDatabase
 
 @end
+
+NS_ASSUME_NONNULL_END

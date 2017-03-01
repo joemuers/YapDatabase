@@ -14,11 +14,6 @@
 	NSUInteger hash;
 }
 
-YapCollectionKey* YapCollectionKeyCreate(NSString *collection, NSString *key)
-{
-	return [[YapCollectionKey alloc] initWithCollection:collection key:key];
-}
-
 @synthesize collection = collection;
 @synthesize key = key;
 
@@ -113,8 +108,7 @@ CFHashCode YapCollectionKeyHash(const __unsafe_unretained YapCollectionKey *ck)
 
 + (CFDictionaryKeyCallBacks)keyCallbacks
 {
-	CFDictionaryKeyCallBacks keyCallbacks;
-	memcpy(&keyCallbacks, &kCFTypeDictionaryKeyCallBacks, sizeof(CFDictionaryKeyCallBacks));
+	CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
 	
 	keyCallbacks.equal = (CFDictionaryEqualCallBack)YapCollectionKeyEqual;
 	keyCallbacks.hash = (CFDictionaryHashCallBack)YapCollectionKeyHash;

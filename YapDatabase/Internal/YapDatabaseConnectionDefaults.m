@@ -1,7 +1,7 @@
 #import "YapDatabaseConnectionDefaults.h"
 
 static NSUInteger const DEFAULT_OBJECT_CACHE_LIMIT   = 250;
-static NSUInteger const DEFAULT_METADATA_CACHE_LIMIT = 500;
+static NSUInteger const DEFAULT_METADATA_CACHE_LIMIT = 250;
 
 
 @implementation YapDatabaseConnectionDefaults
@@ -15,7 +15,7 @@ static NSUInteger const DEFAULT_METADATA_CACHE_LIMIT = 500;
 @synthesize objectPolicy = objectPolicy;
 @synthesize metadataPolicy = metadataPolicy;
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS || TARGET_OS_TV
 @synthesize autoFlushMemoryFlags = autoFlushMemoryFlags;
 #endif
 
@@ -32,7 +32,7 @@ static NSUInteger const DEFAULT_METADATA_CACHE_LIMIT = 500;
 		objectPolicy = YapDatabasePolicyContainment;
 		metadataPolicy = YapDatabasePolicyContainment;
 		
-		#if TARGET_OS_IPHONE
+		#if TARGET_OS_IOS || TARGET_OS_TV
 		autoFlushMemoryFlags = YapDatabaseConnectionFlushMemoryFlags_All;
 		#endif
 	}
@@ -52,7 +52,7 @@ static NSUInteger const DEFAULT_METADATA_CACHE_LIMIT = 500;
 	copy->objectPolicy = objectPolicy;
 	copy->metadataPolicy = metadataPolicy;
 	
-	#if TARGET_OS_IPHONE
+	#if TARGET_OS_IOS || TARGET_OS_TV
 	copy->autoFlushMemoryFlags = autoFlushMemoryFlags;
 	#endif
 	
