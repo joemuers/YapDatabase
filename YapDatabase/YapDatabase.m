@@ -385,7 +385,7 @@ static int connectionBusyHandler(void *ptr, int count) {
                                     objectDeserializer:(YapDatabaseDeserializer)inObjectDeserializer
                                     metadataSerializer:(YapDatabaseSerializer)inMetadataSerializer
                                   metadataDeserializer:(YapDatabaseDeserializer)inMetadataDeserializer
-                                               options:(YapDatabaseOptions *)inOptions
+                                               options:(YapDatabaseOptions __unused *)inOptions
 {
 	return [self initWithPath:inPath
 	         objectSerializer:inObjectSerializer
@@ -3047,7 +3047,7 @@ static BOOL const YDB_PRINT_WAL_SIZE = YES;
 	}});
 }
 
-- (void)aggressiveTryTruncateLargeWAL:(int64_t)lastCheckpointTime
+- (void)aggressiveTryTruncateLargeWAL:(__unused int64_t)lastCheckpointTime
 {
 	__weak YapDatabase *weakSelf = self;
 	

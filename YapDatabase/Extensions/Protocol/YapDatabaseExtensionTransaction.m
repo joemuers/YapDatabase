@@ -389,9 +389,9 @@
  *
  * The row is being inserted, meaning there is not currently an entry for the collection/key tuple.
 **/
-- (void)handleWillInsertObject:(id)object
-              forCollectionKey:(YapCollectionKey *)collectionKey
-                  withMetadata:(id)metadata
+- (void)handleWillInsertObject:(__unused id)object
+              forCollectionKey:(YapCollectionKey __unused *)collectionKey
+                  withMetadata:(__unused id)metadata
 {
 	// Override me if needed
 }
@@ -407,10 +407,10 @@
  *
  * The row is being modified, meaning there is already an entry for the collection/key tuple which is being modified.
 **/
-- (void)handleWillUpdateObject:(id)object
-              forCollectionKey:(YapCollectionKey *)collectionKey
-                  withMetadata:(id)metadata
-                         rowid:(int64_t)rowid
+- (void)handleWillUpdateObject:(__unused id)object
+              forCollectionKey:(YapCollectionKey __unused *)collectionKey
+                  withMetadata:(__unused id)metadata
+                         rowid:(__unused int64_t)rowid
 {
 	// Override me if needed
 }
@@ -425,9 +425,9 @@
  *
  * There is already a row for the collection/key tuple, and only the object is being modified (metadata untouched).
 **/
-- (void)handleWillReplaceObject:(id)object
-               forCollectionKey:(YapCollectionKey *)collectionKey
-                      withRowid:(int64_t)rowid
+- (void)handleWillReplaceObject:(__unused id)object
+               forCollectionKey:(YapCollectionKey __unused *)collectionKey
+                      withRowid:(__unused int64_t)rowid
 {
 	// Override me if needed
 }
@@ -442,9 +442,9 @@
  *
  * There is already a row for the collection/key tuple, and only the metadata is being modified (object untouched).
 **/
-- (void)handleWillReplaceMetadata:(id)metadata
-                 forCollectionKey:(YapCollectionKey *)collectionKey
-                        withRowid:(int64_t)rowid
+- (void)handleWillReplaceMetadata:(__unused id)metadata
+                 forCollectionKey:(YapCollectionKey __unused *)collectionKey
+                        withRowid:(__unused int64_t)rowid
 {
 	// Override me if needed
 }
@@ -456,7 +456,8 @@
  * Corresponds to the following method(s) in YapDatabaseReadWriteTransaction:
  * - removeObjectForKey:inCollection:
 **/
-- (void)handleWillRemoveObjectForCollectionKey:(YapCollectionKey *)collectionKey withRowid:(int64_t)rowid
+- (void)handleWillRemoveObjectForCollectionKey:(YapCollectionKey __unused *)collectionKey
+                                     withRowid:(__unused int64_t)rowid
 {
 	// Override me if needed
 }
@@ -476,7 +477,9 @@
  * The YapDatabaseReadWriteTransaction will inspect the list of keys that are to be removed,
  * and then loop over them in "chunks" which are readily processable for extensions.
 **/
-- (void)handleWillRemoveObjectsForKeys:(NSArray *)keys inCollection:(NSString *)collection withRowids:(NSArray *)rowids
+- (void)handleWillRemoveObjectsForKeys:(NSArray __unused *)keys
+                          inCollection:(NSString __unused *)collection
+                            withRowids:(NSArray __unused *)rowids
 {
 	// Override me if needed
 }
