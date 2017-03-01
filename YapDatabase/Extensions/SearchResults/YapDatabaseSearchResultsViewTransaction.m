@@ -830,7 +830,7 @@ static NSString *const ext_key_query             = @"query";
 /**
  * This method is invoked whenver a item is added to our view.
 **/
-- (void)didInsertRowid:(int64_t)rowid collectionKey:(YapCollectionKey *)collectionKey
+- (void)didInsertRowid:(int64_t)rowid collectionKey:(YapCollectionKey __unused *)collectionKey
 {
 	__unsafe_unretained YapDatabaseSearchResultsViewOptions *searchResultsOptions =
 	  (YapDatabaseSearchResultsViewOptions *)viewConnection->view->options;
