@@ -1175,7 +1175,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 		{
 			if ((edge->state & YDB_EdgeState_HasSourceRowid) && srcRowid)
 			{
-				if (edge->sourceRowid != srcRowid.unsignedLongLongValue)
+				if (edge->sourceRowid != srcRowid.longLongValue)
 				{
 					continue;
 				}
@@ -1286,7 +1286,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 			}
 			else if ((edge->state & YDB_EdgeState_HasDestinationRowid) && dstRowid)
 			{
-				if (edge->destinationRowid != dstRowid.unsignedLongLongValue)
+				if (edge->destinationRowid != dstRowid.longLongValue)
 				{
 					continue;
 				}
@@ -1319,7 +1319,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 			}
 			else if ((edge->state & YDB_EdgeState_HasDestinationRowid) && dstRowid)
 			{
-				if (edge->destinationRowid != dstRowid.unsignedLongLongValue)
+				if (edge->destinationRowid != dstRowid.longLongValue)
 				{
 					continue;
 				}
@@ -1534,7 +1534,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 		}
 		else if ((edge->state & YDB_EdgeState_HasDestinationRowid) && dstRowid)
 		{
-			if (edge->destinationRowid != dstRowid.unsignedLongLongValue)
+			if (edge->destinationRowid != dstRowid.longLongValue)
 			{
 				continue;
 			}
@@ -1562,7 +1562,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 		{
 			if ((edge->state & YDB_EdgeState_HasSourceRowid) && srcRowid)
 			{
-				if (edge->sourceRowid != srcRowid.unsignedLongLongValue)
+				if (edge->sourceRowid != srcRowid.longLongValue)
 				{
 					continue;
 				}
@@ -1582,7 +1582,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 			}
 			else if ((edge->state & YDB_EdgeState_HasDestinationRowid) && dstRowid)
 			{
-				if (edge->destinationRowid != dstRowid.unsignedLongLongValue)
+				if (edge->destinationRowid != dstRowid.longLongValue)
 				{
 					continue;
 				}
@@ -1722,7 +1722,7 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
 		{
 			if ((edge->state & YDB_EdgeState_HasSourceRowid) && srcRowid)
 			{
-				if (edge->sourceRowid != srcRowid.unsignedLongLongValue)
+				if (edge->sourceRowid != srcRowid.longLongValue)
 				{
 					continue;
 				}
@@ -4127,7 +4127,8 @@ NS_INLINE BOOL URLMatchesURL(NSURL *url1, NSURL *url2)
  * YapDatabase extension hook.
  * This method is invoked by a YapDatabaseReadWriteTransaction as a post-operation-hook.
 **/
-- (void)handleTouchRowForCollectionKey:(YapCollectionKey *)collectionKey withRowid:(int64_t)rowid
+- (void)handleTouchRowForCollectionKey:(YapCollectionKey __unused *)collectionKey
+                             withRowid:(__unused int64_t)rowid
 {
 	YDBLogAutoTrace();
 	

@@ -174,7 +174,7 @@ static NSString *const kPlistKey_PathComponents = @"pathComponents";
 
 + (YapDatabaseRelationshipFileURLDeserializer)defaultFileURLDeserializer
 {
-	return ^NSURL* (YapDatabaseRelationshipEdge *edge, NSData *data){ @autoreleasepool {
+	return ^NSURL* (YapDatabaseRelationshipEdge __unused *edge, NSData *data){ @autoreleasepool {
 		
 		if (data.length == 0) return nil;
 		
@@ -281,7 +281,7 @@ static NSString *const kPlistKey_PathComponents = @"pathComponents";
 			__block BOOL found = NO;
 			__block NSUInteger lastHexIdx = 0;
 			
-			[pathComponents enumerateObjectsUsingBlock:^(NSString *pathComponent, NSUInteger idx, BOOL *stop) {
+			[pathComponents enumerateObjectsUsingBlock:^(NSString *pathComponent, NSUInteger idx, BOOL __unused *stop) {
 				
 				if (pathComponent.length == 36)
 				{

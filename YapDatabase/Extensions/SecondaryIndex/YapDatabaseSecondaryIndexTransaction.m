@@ -1573,7 +1573,8 @@ static NSString *const ext_key_version_deprecated = @"version";
 	
 	[databaseTransaction _enumerateRowidsForKeys:keys
 	                                inCollection:collection
-	                         unorderedUsingBlock:^(NSUInteger keyIndex, int64_t rowid, BOOL *stop)
+	                         unorderedUsingBlock:^(NSUInteger keyIndex, int64_t rowid,
+	                                               BOOL __unused *stop)
 	{
 		NSString *key = keys[keyIndex];
 		results[key] = @(rowid);
