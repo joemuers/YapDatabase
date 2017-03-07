@@ -247,7 +247,8 @@
 	
 	NSMutableDictionary *paramIndexToArrayCountMap = [NSMutableDictionary dictionary];
 	
-	[inQueryParameters enumerateObjectsUsingBlock:^(id param, NSUInteger paramIndex, BOOL *stop) {
+	[inQueryParameters enumerateObjectsUsingBlock:^(id param, NSUInteger paramIndex,
+	                                                BOOL __unused *stop) {
 		
 		if ([param isKindOfClass:[NSArray class]])
 		{
@@ -288,7 +289,7 @@
 		__block NSUInteger unpackingOffset = 0;
 		
 		[paramIndexToArrayCountMap enumerateKeysAndObjectsUsingBlock:
-		    ^(NSNumber *paramIndexNum, NSNumber *arrayCountNum, BOOL *stop)
+		    ^(NSNumber *paramIndexNum, NSNumber *arrayCountNum, BOOL __unused *stop)
 		{
 			NSUInteger arrayCount = [arrayCountNum unsignedIntegerValue];
 			
