@@ -14,6 +14,7 @@
 #import <objc/runtime.h>
 #import <mach/mach_time.h>
 #import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
@@ -149,7 +150,7 @@ static int connectionBusyHandler(void *ptr, int count)
 	sqlite3_stmt *enumerateRowsInCollectionStatement;
 	sqlite3_stmt *enumerateRowsInAllCollectionsStatement;
 	
-	OSSpinLock lock;
+	os_unfair_lock lock;
 	BOOL writeQueueSuspended;
 	BOOL activeReadWriteTransaction;
 }
@@ -253,7 +254,7 @@ static int connectionBusyHandler(void *ptr, int count)
 		self.autoFlushMemoryFlags = defaults.autoFlushMemoryFlags;
 		#endif
 		
-		lock = OS_SPINLOCK_INIT;
+		lock = OS_UNFAIR_LOCK_INIT;
 		
 		BOOL recycled = [database connectionPoolDequeue:&db main_file:&main_file wal_file:&wal_file];
 		if (recycled)
@@ -3539,7 +3540,7 @@ static int connectionBusyHandler(void *ptr, int count)
 		
 		BOOL abort = NO;
 		
-		OSSpinLockLock(&lock);
+		os_unfair_lock_lock(&lock);
 		{
 			if (activeReadWriteTransaction) {
 				abort = YES;
@@ -3549,7 +3550,7 @@ static int connectionBusyHandler(void *ptr, int count)
 				writeQueueSuspended = YES;
 			}
 		}
-		OSSpinLockUnlock(&lock);
+		os_unfair_lock_unlock(&lock);
 		
 		if (abort) return;
 		
@@ -3560,11 +3561,11 @@ static int connectionBusyHandler(void *ptr, int count)
 			// If possible, silently reset the longLivedReadTransaction (same snapshot, no longer locking the WAL)
 			
 			BOOL writeQueueStillSuspended = NO;
-			OSSpinLockLock(&lock);
+			os_unfair_lock_lock(&lock);
 			{
 				writeQueueStillSuspended = writeQueueSuspended;
 			}
-			OSSpinLockUnlock(&lock);
+			os_unfair_lock_unlock(&lock);
 			
 			if (writeQueueStillSuspended && longLivedReadTransaction && (snapshot == [database snapshot]))
 			{
@@ -3579,21 +3580,21 @@ static int connectionBusyHandler(void *ptr, int count)
 			
 			// Resume the writeQueue
 			
-			OSSpinLockLock(&lock);
+			os_unfair_lock_lock(&lock);
 			{
 				if (writeQueueSuspended) {
 					dispatch_resume(database->writeQueue);
 					writeQueueSuspended = NO;
 				}
 			}
-			OSSpinLockUnlock(&lock);
+			os_unfair_lock_unlock(&lock);
 		});
 	});
 }
 
 NS_INLINE void __preWriteQueue(YapDatabaseConnection *connection)
 {
-	OSSpinLockLock(&connection->lock);
+	os_unfair_lock_lock(&connection->lock);
 	{
 		if (connection->writeQueueSuspended) {
 			dispatch_resume(connection->database->writeQueue);
@@ -3601,16 +3602,16 @@ NS_INLINE void __preWriteQueue(YapDatabaseConnection *connection)
 		}
 		connection->activeReadWriteTransaction = YES;
 	}
-	OSSpinLockUnlock(&connection->lock);
+	os_unfair_lock_unlock(&connection->lock);
 }
 
 NS_INLINE void __postWriteQueue(YapDatabaseConnection *connection)
 {
-	OSSpinLockLock(&connection->lock);
+	os_unfair_lock_lock(&connection->lock);
 	{
 		connection->activeReadWriteTransaction = NO;
 	}
-	OSSpinLockUnlock(&connection->lock);
+	os_unfair_lock_unlock(&connection->lock);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
