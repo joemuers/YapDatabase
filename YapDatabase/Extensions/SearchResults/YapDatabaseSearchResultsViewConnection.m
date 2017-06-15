@@ -108,8 +108,8 @@
 	return keys;
 }
 
-- (void)getInternalChangeset:(NSMutableDictionary **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalChangesetPtr
               hasDiskChanges:(BOOL *)hasDiskChangesPtr
 {
 	NSMutableDictionary *internalChangeset = nil;
@@ -246,7 +246,7 @@
 	queryChanged = queryChanged || isChange;
 }
 
-- (void)getQuery:(NSString **)queryPtr wasChanged:(BOOL *)wasChangedPtr
+- (void)getQuery:(NSString * __autoreleasing *)queryPtr wasChanged:(BOOL *)wasChangedPtr
 {
 	NSAssert(dispatch_get_specific(databaseConnection->IsOnConnectionQueueKey), @"Expected to be on connectionQueue");
 	

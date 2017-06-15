@@ -458,7 +458,8 @@
 	return collectionKey;
 }
 
-- (BOOL)getCollectionKey:(YapCollectionKey **)collectionKeyPtr object:(id *)objectPtr forRowid:(int64_t)rowid
+- (BOOL)getCollectionKey:(YapCollectionKey * __autoreleasing *)collectionKeyPtr
+                  object:(id __autoreleasing *)objectPtr forRowid:(int64_t)rowid
 {
 	YapCollectionKey *collectionKey = [self collectionKeyForRowid:rowid];
 	if (collectionKey)
@@ -477,7 +478,8 @@
 	}
 }
 
-- (BOOL)getCollectionKey:(YapCollectionKey **)collectionKeyPtr metadata:(id *)metadataPtr forRowid:(int64_t)rowid
+- (BOOL)getCollectionKey:(YapCollectionKey * __autoreleasing *)collectionKeyPtr
+                metadata:(id __autoreleasing *)metadataPtr forRowid:(int64_t)rowid
 {
 	YapCollectionKey *collectionKey = [self collectionKeyForRowid:rowid];
 	if (collectionKey)
@@ -496,9 +498,9 @@
 	}
 }
 
-- (BOOL)getCollectionKey:(YapCollectionKey **)collectionKeyPtr
-                  object:(id *)objectPtr
-                metadata:(id *)metadataPtr
+- (BOOL)getCollectionKey:(YapCollectionKey * __autoreleasing *)collectionKeyPtr
+                  object:(id __autoreleasing *)objectPtr
+                metadata:(id __autoreleasing *)metadataPtr
                 forRowid:(int64_t)rowid
 {
 	YapCollectionKey *collectionKey = [self collectionKeyForRowid:rowid];
@@ -667,8 +669,8 @@
 	return metadata;
 }
 
-- (BOOL)getObject:(id *)objectPtr
-         metadata:(id *)metadataPtr
+- (BOOL)getObject:(id __autoreleasing *)objectPtr
+         metadata:(id __autoreleasing *)metadataPtr
            forKey:(NSString *)key
      inCollection:(NSString *)collection
         withRowid:(int64_t)rowid
@@ -678,8 +680,8 @@
 	return [self getObject:objectPtr metadata:metadataPtr forCollectionKey:cacheKey withRowid:rowid];
 }
 
-- (BOOL)getObject:(id *)objectPtr
-         metadata:(id *)metadataPtr
+- (BOOL)getObject:(id __autoreleasing *)objectPtr
+         metadata:(id __autoreleasing *)metadataPtr
  forCollectionKey:(YapCollectionKey *)cacheKey
         withRowid:(int64_t)rowid
 {
@@ -1023,7 +1025,9 @@
 	return metadata;
 }
 
-- (BOOL)getObject:(id *)objectPtr metadata:(id *)metadataPtr forKey:(NSString *)key inCollection:(NSString *)collection
+- (BOOL)getObject:(id __autoreleasing *)objectPtr metadata:(id __autoreleasing *)metadataPtr
+           forKey:(NSString *)key
+     inCollection:(NSString *)collection
 {
 	if (key == nil)
 	{
@@ -1414,8 +1418,8 @@
  *
  * @see getObject:metadata:forKey:inCollection:
 **/
-- (BOOL)getSerializedObject:(NSData **)serializedObjectPtr
-         serializedMetadata:(NSData **)serializedMetadataPtr
+- (BOOL)getSerializedObject:(NSData * __autoreleasing *)serializedObjectPtr
+         serializedMetadata:(NSData * __autoreleasing *)serializedMetadataPtr
                      forKey:(NSString *)key
                inCollection:(NSString *)collection
 {

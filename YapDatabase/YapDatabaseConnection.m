@@ -3671,8 +3671,8 @@ NS_INLINE void __postWriteQueue(YapDatabaseConnection *connection)
  * 
  * @see processChangeset:
 **/
-- (void)getInternalChangeset:(NSMutableDictionary **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalChangesetPtr
 {
 	// Step 1 of 2 - Process extensions
 	//

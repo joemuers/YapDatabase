@@ -631,8 +631,8 @@ static NSString *const ext_key__version_deprecated = @"version";
 	
 	__unsafe_unretained YapDatabaseFullTextSearchHandler *handler = parentConnection->parent->handler;
 	
-	YapDatabaseBlockInvoke blockInvokeBitMask = YapDatabaseBlockInvokeIfObjectModified |
-	                                            YapDatabaseBlockInvokeIfMetadataModified;
+	YapDatabaseBlockInvoke blockInvokeBitMask =
+		(YapDatabaseBlockInvoke)(YapDatabaseBlockInvokeIfObjectModified | YapDatabaseBlockInvokeIfMetadataModified);
 	
 	if (!(handler->blockInvokeOptions & blockInvokeBitMask))
 	{
@@ -788,8 +788,9 @@ static NSString *const ext_key__version_deprecated = @"version";
 	
 	__unsafe_unretained YapDatabaseFullTextSearchHandler *handler = parentConnection->parent->handler;
 	
-	YapDatabaseBlockInvoke blockInvokeBitMask = YapDatabaseBlockInvokeIfObjectTouched |
-	                                            YapDatabaseBlockInvokeIfMetadataTouched;
+	YapDatabaseBlockInvoke blockInvokeBitMask =
+		(YapDatabaseBlockInvoke)(YapDatabaseBlockInvokeIfObjectTouched |
+                             YapDatabaseBlockInvokeIfMetadataTouched);
 	
 	if (!(handler->blockInvokeOptions & blockInvokeBitMask))
 	{

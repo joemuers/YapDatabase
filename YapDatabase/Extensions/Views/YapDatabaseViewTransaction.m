@@ -696,7 +696,8 @@
 		};
 	}
 	
-	YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+	YapDatabaseViewChangesBitMask flags =
+    (YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	if (needsObject && needsMetadata)
 	{
@@ -1203,7 +1204,8 @@
  *         pageKey = @{ @(rowid) = collectionKey, ... }
  *     }
 **/
-- (NSDictionary *)pageKeysForRowids:(NSArray **)rowidsPtr withKeyMappings:(NSDictionary *)keyMappings
+- (NSDictionary *)pageKeysForRowids:(NSArray * __autoreleasing *)rowidsPtr
+                    withKeyMappings:(NSDictionary *)keyMappings
 {
 	if ([*rowidsPtr count] == 0)
 	{
@@ -2560,7 +2562,7 @@
 				
 				// Mark rowid mappings as dirty
 				
-				[prevPage enumerateRowidsWithOptions:0
+				[prevPage enumerateRowidsWithOptions:(NSEnumerationOptions)0
 				                               range:prevPageRange
 				                          usingBlock:^(int64_t rowid, NSUInteger __unused index, BOOL __unused *stop) {
 					
@@ -2610,7 +2612,7 @@
 				
 				// Mark rowid mappings as dirty
 				
-				[nextPage enumerateRowidsWithOptions:0
+				[nextPage enumerateRowidsWithOptions:(NSEnumerationOptions)0
 				                               range:nextPageRange
 				                          usingBlock:^(int64_t rowid, NSUInteger __unused index, BOOL __unused *stop) {
 					
@@ -3529,7 +3531,8 @@
 	
 	YapDatabaseBlockInvoke blockInvokeBitMask = YapDatabaseBlockInvokeOnInsertOnly;
 	
-	YapDatabaseViewChangesBitMask changesBitMask = YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata;
+	YapDatabaseViewChangesBitMask changesBitMask =
+		(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	YapDatabaseViewGrouping *grouping = nil;
 	YapDatabaseViewSorting *sorting = nil;
@@ -3558,10 +3561,11 @@
 {
 	YDBLogAutoTrace();
 	
-	YapDatabaseBlockInvoke blockInvokeBitMask = YapDatabaseBlockInvokeIfObjectModified |
-	                                            YapDatabaseBlockInvokeIfMetadataModified;
+	YapDatabaseBlockInvoke blockInvokeBitMask =
+		(YapDatabaseBlockInvoke)(YapDatabaseBlockInvokeIfObjectModified | YapDatabaseBlockInvokeIfMetadataModified);
 	
-	YapDatabaseViewChangesBitMask changesBitMask = YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata;
+	YapDatabaseViewChangesBitMask changesBitMask =
+		(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	YapDatabaseViewGrouping *grouping = nil;
 	YapDatabaseViewSorting *sorting = nil;
@@ -3775,9 +3779,11 @@
 	YDBLogAutoTrace();
 	
 	YapDatabaseBlockInvoke blockInvokeBitMask =
-	  YapDatabaseBlockInvokeIfObjectTouched | YapDatabaseBlockInvokeIfMetadataTouched;
+		(YapDatabaseBlockInvoke)(YapDatabaseBlockInvokeIfObjectTouched |
+                             YapDatabaseBlockInvokeIfMetadataTouched);
 	
-	YapDatabaseViewChangesBitMask changesBitMask = YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata;
+	YapDatabaseViewChangesBitMask changesBitMask =
+		(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	YapDatabaseViewGrouping *grouping = nil;
 	YapDatabaseViewSorting *sorting = nil;
@@ -4034,8 +4040,8 @@
 #pragma mark Public API - Fetching
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL)getKey:(NSString **)keyPtr
-    collection:(NSString **)collectionPtr
+- (BOOL)getKey:(NSString * __autoreleasing *)keyPtr
+    collection:(NSString * __autoreleasing *)collectionPtr
        atIndex:(NSUInteger)index
        inGroup:(NSString *)group
 {
@@ -4056,12 +4062,14 @@
 	return NO;
 }
 
-- (BOOL)getFirstKey:(NSString **)keyPtr collection:(NSString **)collectionPtr inGroup:(NSString *)group
+- (BOOL)getFirstKey:(NSString * __autoreleasing *)keyPtr
+         collection:(NSString * __autoreleasing *)collectionPtr inGroup:(NSString *)group
 {
 	return [self getKey:keyPtr collection:collectionPtr atIndex:0 inGroup:group];
 }
 
-- (BOOL)getLastKey:(NSString **)keyPtr collection:(NSString **)collectionPtr inGroup:(NSString *)group
+- (BOOL)getLastKey:(NSString * __autoreleasing *)keyPtr
+        collection:(NSString * __autoreleasing *)collectionPtr inGroup:(NSString *)group
 {
 	int64_t rowid = 0;
 	if ([self getLastRowid:&rowid inGroup:group])
@@ -4113,7 +4121,7 @@
 	return nil;
 }
 
-- (BOOL)getGroup:(NSString **)groupPtr
+- (BOOL)getGroup:(NSString * __autoreleasing *)groupPtr
            index:(NSUInteger *)indexPtr
           forKey:(NSString *)key
 	inCollection:(NSString *)collection
@@ -5344,7 +5352,7 @@
  * If the item isn't in the cache, having the rowid makes for a faster fetch from sqlite.
 **/
 - (BOOL)getRowid:(int64_t *)rowidPtr
-   collectionKey:(YapCollectionKey **)collectionKeyPtr
+   collectionKey:(YapCollectionKey * __autoreleasing *)collectionKeyPtr
           forRow:(NSUInteger)row
        inSection:(NSUInteger)section
     withMappings:(YapDatabaseViewMappings *)mappings
@@ -5381,8 +5389,8 @@
  * Returns NO if the indexPath is invalid, or the mappings aren't initialized.
  * Otherwise returns YES, and sets the key & collection ptr (both optional).
 **/
-- (BOOL)getKey:(NSString **)keyPtr
-    collection:(NSString **)collectionPtr
+- (BOOL)getKey:(NSString * __autoreleasing *)keyPtr
+    collection:(NSString * __autoreleasing *)collectionPtr
    atIndexPath:(NSIndexPath *)indexPath
   withMappings:(YapDatabaseViewMappings *)mappings
 {
@@ -5420,8 +5428,8 @@
  * Returns NO if the row or section is invalid, or the mappings aren't initialized.
  * Otherwise returns YES, and sets the key & collection ptr (both optional).
 **/
-- (BOOL)getKey:(NSString **)keyPtr
-    collection:(NSString **)collectionPtr
+- (BOOL)getKey:(NSString * __autoreleasing *)keyPtr
+    collection:(NSString * __autoreleasing *)collectionPtr
         forRow:(NSUInteger)row
      inSection:(NSUInteger)section
   withMappings:(YapDatabaseViewMappings *)mappings

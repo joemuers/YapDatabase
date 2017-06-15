@@ -108,8 +108,8 @@
  * table (such as the optimize command), then it MUST be sure to set the hasDiskChangesPtr to YES.
  * This is because the internal architecture has optimizations if no disk changes occurred.
 **/
-- (void)getInternalChangeset:(NSMutableDictionary **)internalPtr
-           externalChangeset:(NSMutableDictionary **)externalPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalPtr
               hasDiskChanges:(BOOL *)hasDiskChangesPtr
 {
 	NSAssert(NO, @"Missing required override method(%@) in class(%@)", NSStringFromSelector(_cmd), [self class]);

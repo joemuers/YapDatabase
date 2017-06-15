@@ -107,8 +107,8 @@
 	[super postCommitCleanup];
 }
 
-- (void)getInternalChangeset:(NSMutableDictionary **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalChangesetPtr
               hasDiskChanges:(BOOL *)hasDiskChangesPtr
 {
 	YDBLogAutoTrace();
@@ -166,9 +166,9 @@
 	versionTagChanged = YES;
 }
 
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
-            sorting:(YapDatabaseViewSorting **)sortingPtr
-          filtering:(YapDatabaseViewFiltering **)filteringPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
+            sorting:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
+          filtering:(YapDatabaseViewFiltering * __autoreleasing *)filteringPtr
 {
 	if (!grouping || !sorting || !filtering)
 	{
@@ -207,15 +207,15 @@
 /**
  * Overrides method in YapDatabaseView
 **/
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
-            sortingBlock:(YapDatabaseViewSorting **)sortingPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
+            sortingBlock:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
 {
 	[self getGrouping:groupingPtr
 	          sorting:sortingPtr
 	        filtering:NULL];
 }
 
-- (void)getFiltering:(YapDatabaseViewFiltering **)filteringPtr
+- (void)getFiltering:(YapDatabaseViewFiltering * __autoreleasing *)filteringPtr
 {
 	[self getGrouping:NULL
 	          sorting:NULL
