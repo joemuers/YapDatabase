@@ -317,8 +317,8 @@
 	return @[ changeset_key_changes ];
 }
 
-- (void)getInternalChangeset:(NSMutableDictionary **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalChangesetPtr
               hasDiskChanges:(BOOL *)hasDiskChangesPtr
 {
 	YDBLogAutoTrace();
@@ -497,8 +497,8 @@
  * Gets an exact list of changes that happend to the view, translating groups to sections as requested.
  * See the header file for more information.
 **/
-- (void)getSectionChanges:(NSArray<YapDatabaseViewSectionChange *> **)sectionChangesPtr
-               rowChanges:(NSArray<YapDatabaseViewRowChange *> **)rowChangesPtr
+- (void)getSectionChanges:(NSArray<YapDatabaseViewSectionChange *> * __autoreleasing *)sectionChangesPtr
+               rowChanges:(NSArray<YapDatabaseViewRowChange *> * __autoreleasing *)rowChangesPtr
          forNotifications:(NSArray *)notifications
              withMappings:(YapDatabaseViewMappings *)mappings
 {
@@ -1000,8 +1000,8 @@
 	versionTagChanged = YES;
 }
 
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
-            sorting:(YapDatabaseViewSorting **)sortingPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
+            sorting:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
 {
 	if (!grouping || !sorting)
 	{
@@ -1028,13 +1028,13 @@
 	if (sortingPtr)  *sortingPtr  = sorting;
 }
 
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
 {
 	[self getGrouping:groupingPtr
 	          sorting:NULL];
 }
 
-- (void)getSorting:(YapDatabaseViewSorting **)sortingPtr
+- (void)getSorting:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
 {
 	[self getGrouping:NULL
 	          sorting:sortingPtr];

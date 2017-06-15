@@ -1184,8 +1184,9 @@ static NSString *const ext_key_query             = @"query";
 		{
 			[self updateSnippet:snippet forRowid:rowid];
 		}
-		
-		YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+
+		YapDatabaseViewChangesBitMask flags =
+			(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 		
 		[self insertRowid:rowid
 		    collectionKey:collectionKey
@@ -1317,7 +1318,8 @@ static NSString *const ext_key_query             = @"query";
 			[self updateSnippet:snippet forRowid:rowid];
 		}
 		
-		YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+		YapDatabaseViewChangesBitMask flags =
+			(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 		
 		[self insertRowid:rowid
 		    collectionKey:collectionKey
@@ -1464,7 +1466,8 @@ static NSString *const ext_key_query             = @"query";
 				[self updateSnippet:snippet forRowid:rowid];
 			}
 			
-			YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+			YapDatabaseViewChangesBitMask flags =
+				(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 			
 			id metadata = nil;
 			if (sorting->blockType & YapDatabaseBlockType_MetadataFlag)
@@ -1756,7 +1759,8 @@ static NSString *const ext_key_query             = @"query";
 				[self updateSnippet:snippet forRowid:rowid];
 			}
 			
-			YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+			YapDatabaseViewChangesBitMask flags =
+				(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 			
 			id object= nil;
 			if (sorting->blockType & YapDatabaseBlockType_ObjectFlag)
@@ -2229,7 +2233,7 @@ static NSString *const ext_key_query             = @"query";
 			done = YES;
 			
 			[self enumerateRowidsInGroup:group
-			                 withOptions:0
+			                 withOptions:(NSEnumerationOptions)0
 			                       range:range
 			                  usingBlock:^(int64_t rowid, NSUInteger index, BOOL *stop)
 			{
@@ -2358,7 +2362,8 @@ static NSString *const ext_key_query             = @"query";
 		{
 			// Add to view.
 			
-			YapDatabaseViewChangesBitMask flags = (YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
+			YapDatabaseViewChangesBitMask flags =
+				(YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 			
 			if (sorting->blockType == YapDatabaseBlockTypeWithObject)
 			{

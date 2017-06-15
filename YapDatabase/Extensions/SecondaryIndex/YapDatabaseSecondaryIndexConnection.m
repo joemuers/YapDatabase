@@ -227,8 +227,8 @@
 /**
  * Required override method from YapDatabaseExtension
 **/
-- (void)getInternalChangeset:(NSMutableDictionary __unused **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary __unused **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary __unused * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary __unused * __autoreleasing *)externalChangesetPtr
               hasDiskChanges:(BOOL __unused *)hasDiskChangesPtr
 {
 	// Nothing to do for this particular extension.

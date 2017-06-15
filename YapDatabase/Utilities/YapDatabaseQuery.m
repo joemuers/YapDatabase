@@ -176,7 +176,8 @@
 	NSUInteger queryStringLength = [queryString length];
 	
 	NSRange searchRange = NSMakeRange(0, queryStringLength);
-	NSRange paramRange = [queryString rangeOfString:@"?" options:0 range:searchRange];
+	NSRange paramRange = [queryString rangeOfString:@"?" options:(NSStringCompareOptions)0
+                                            range:searchRange];
 	
 	while (paramRange.location != NSNotFound)
 	{
@@ -187,7 +188,8 @@
 		searchRange.location = paramRange.location + 1;
 		searchRange.length = queryStringLength - searchRange.location;
 		
-		paramRange = [queryString rangeOfString:@"?" options:0 range:searchRange];
+		paramRange = [queryString rangeOfString:@"?" options:(NSStringCompareOptions)0
+                                      range:searchRange];
 	}
 	
 	return paramLocations;
@@ -196,8 +198,8 @@
 /**
  * Utility method to parse format & args.
 **/
-+ (void)getParameters:(NSArray **)parametersPtr
-       paramLocations:(NSArray **)paramLocationsPtr
++ (void)getParameters:(NSArray * __autoreleasing *)parametersPtr
+       paramLocations:(NSArray * __autoreleasing *)paramLocationsPtr
            fromFormat:(NSString *)format
                  args:(va_list)args
 {

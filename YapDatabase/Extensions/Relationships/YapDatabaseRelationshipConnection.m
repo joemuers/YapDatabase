@@ -268,8 +268,8 @@
 	          changeset_key_reset ];
 }
 
-- (void)getInternalChangeset:(NSMutableDictionary **)internalChangesetPtr
-           externalChangeset:(NSMutableDictionary **)externalChangesetPtr
+- (void)getInternalChangeset:(NSMutableDictionary * __autoreleasing *)internalChangesetPtr
+           externalChangeset:(NSMutableDictionary * __autoreleasing *)externalChangesetPtr
               hasDiskChanges:(BOOL *)hasDiskChangesPtr
 {
 	YDBLogAutoTrace();

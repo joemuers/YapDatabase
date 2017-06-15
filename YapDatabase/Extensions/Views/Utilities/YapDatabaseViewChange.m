@@ -232,7 +232,7 @@
 	YapDatabaseViewRowChange *op = [[YapDatabaseViewRowChange alloc] init];
 	op->type = YapDatabaseViewChangeInsert;
 	op->collectionKey = collectionKey;
-	op->changes = YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata;
+	op->changes = (YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	op->originalGroup = nil;                              // invalid in insert type
 	op->originalIndex = op->opOriginalIndex = NSNotFound; // invalid in insert type
@@ -252,7 +252,7 @@
 	YapDatabaseViewRowChange *op = [[YapDatabaseViewRowChange alloc] init];
 	op->type = YapDatabaseViewChangeDelete;
 	op->collectionKey = collectionKey;
-	op->changes = YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata;
+	op->changes = (YapDatabaseViewChangesBitMask)(YapDatabaseViewChangedObject | YapDatabaseViewChangedMetadata);
 	
 	op->originalGroup = group;
 	op->originalIndex = op->opOriginalIndex = index;
@@ -386,8 +386,8 @@
 + (void)preProcessChanges:(NSArray *)changes
      withOriginalMappings:(YapDatabaseViewMappings *)originalMappings
             finalMappings:(YapDatabaseViewMappings *)finalMappings
-     andGetSectionChanges:(NSMutableArray **)sectionChangesPtr
-               rowChanges:(NSMutableArray **)rowChangesPtr
+     andGetSectionChanges:(NSMutableArray * __autoreleasing *)sectionChangesPtr
+               rowChanges:(NSMutableArray * __autoreleasing *)rowChangesPtr
 {
 	
 	// We remove any items from the changes array that don't concern us.
@@ -2362,7 +2362,7 @@
 					YapDatabaseViewRowChange *op = [[YapDatabaseViewRowChange alloc] init];
 					op->type = YapDatabaseViewChangeMove;
 					op->collectionKey = nil;
-					op->changes = 0;
+					op->changes = (YapDatabaseViewChangesBitMask)0;
 					
 					op->originalGroup = group;
 					op->originalSection = originalSection;
@@ -2507,7 +2507,7 @@
 					YapDatabaseViewRowChange *op = [[YapDatabaseViewRowChange alloc] init];
 					op->type = YapDatabaseViewChangeMove;
 					op->collectionKey = nil;
-					op->changes = 0;
+					op->changes = (YapDatabaseViewChangesBitMask)0;
 					
 					NSUInteger originalGroupOffset = [[originalOffsets objectForKey:group] unsignedIntegerValue];
 					
@@ -2708,8 +2708,8 @@
 	}
 }
 
-+ (void)getSectionChanges:(NSArray **)sectionChangesPtr
-               rowChanges:(NSArray **)rowChangesPtr
++ (void)getSectionChanges:(NSArray * __autoreleasing *)sectionChangesPtr
+               rowChanges:(NSArray * __autoreleasing *)rowChangesPtr
 	 withOriginalMappings:(YapDatabaseViewMappings *)originalMappings
 			finalMappings:(YapDatabaseViewMappings *)finalMappings
 			  fromChanges:(NSArray *)changes

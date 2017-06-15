@@ -191,9 +191,9 @@
 /**
  * Used by YapDatabaseFilteredViewConnection to fetch & cache the values for a readWriteTransaction.
 **/
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
-            sorting:(YapDatabaseViewSorting **)sortingPtr
-          filtering:(YapDatabaseViewFiltering **)filteringPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
+            sorting:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
+          filtering:(YapDatabaseViewFiltering * __autoreleasing *)filteringPtr
 {
 	__block YapDatabaseViewGrouping  * mostRecentGrouping  = nil;
 	__block YapDatabaseViewSorting   * mostRecentSorting   = nil;

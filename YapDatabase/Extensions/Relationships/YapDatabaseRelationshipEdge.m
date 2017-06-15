@@ -113,9 +113,9 @@
 		nodeDeleteRules = rules;
 		isManualEdge = NO;
 		
-		state = YDB_EdgeState_DestinationFileURL   | // originally created with valid dstFileURL
-		        YDB_EdgeState_HasDestinationRowid  | // no need for destinationRowid lookup (doesn't apply)
-		        YDB_EdgeState_HasDestinationFileURL; // no need for destinationFileURL deserialization
+		state = (YDB_EdgeState)(YDB_EdgeState_DestinationFileURL   |  // originally created with valid dstFileURL
+														YDB_EdgeState_HasDestinationRowid  |  // no need for destinationRowid lookup (doesn't apply)
+														YDB_EdgeState_HasDestinationFileURL); // no need for destinationFileURL deserialization
 	}
 	return self;
 }
@@ -172,9 +172,9 @@
 		nodeDeleteRules = rules;
 		isManualEdge = YES;
 		
-		state = YDB_EdgeState_DestinationFileURL   | // originally created with valid dstFileURL
-		        YDB_EdgeState_HasDestinationRowid  | // no need for destinationRowid lookup (doesn't apply)
-		        YDB_EdgeState_HasDestinationFileURL; // no need for destinationFileURL deserialization
+		state = (YDB_EdgeState)(YDB_EdgeState_DestinationFileURL   |  // originally created with valid dstFileURL
+														YDB_EdgeState_HasDestinationRowid  |  // no need for destinationRowid lookup (doesn't apply)
+														YDB_EdgeState_HasDestinationFileURL); // no need for destinationFileURL deserialization
 	}
 	return self;
 }
@@ -202,7 +202,8 @@
 		sourceRowid = srcRowid;
 		destinationRowid = dstRowid;
 		
-		state = YDB_EdgeState_HasEdgeRowid | YDB_EdgeState_HasSourceRowid | YDB_EdgeState_HasDestinationRowid;
+		state = (YDB_EdgeState)(YDB_EdgeState_HasEdgeRowid | YDB_EdgeState_HasSourceRowid |
+                            YDB_EdgeState_HasDestinationRowid);
 		
 		if (destinationFileURLData)
 			state |= YDB_EdgeState_DestinationFileURL; // originally created with valid dstFileURL

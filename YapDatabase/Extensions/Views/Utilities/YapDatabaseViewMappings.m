@@ -794,7 +794,8 @@
  *     // configure and return cell...
  * }
 **/
-- (BOOL)getGroup:(NSString **)groupPtr index:(NSUInteger *)indexPtr forIndexPath:(NSIndexPath *)indexPath
+- (BOOL)getGroup:(NSString * __autoreleasing *)groupPtr index:(NSUInteger *)indexPtr
+    forIndexPath:(NSIndexPath *)indexPath
 {
 	if (indexPath == nil)
 	{
@@ -848,7 +849,7 @@
  *     // configure and return cell...
  * }
 **/
-- (BOOL)getGroup:(NSString **)groupPtr
+- (BOOL)getGroup:(NSString * __autoreleasing *)groupPtr
            index:(NSUInteger *)indexPtr
           forRow:(NSUInteger)row
        inSection:(NSUInteger)section
@@ -995,7 +996,7 @@
  * // group = @"C"
  * // index = 0    (Chris)
 **/
-- (BOOL)getGroup:(NSString **)groupPtr index:(NSUInteger *)indexPtr forConsolidatedRow:(NSUInteger)row
+- (BOOL)getGroup:(NSString * __autoreleasing *)groupPtr index:(NSUInteger *)indexPtr forConsolidatedRow:(NSUInteger)row
 {
 	NSUInteger offset = 0;
 	

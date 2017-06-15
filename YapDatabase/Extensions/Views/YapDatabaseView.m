@@ -309,7 +309,7 @@
 /**
  * Optimization - Used by [YapDatabaseViewTransaction prepareIfNeeded]
 **/
-- (BOOL)getState:(YapDatabaseViewState **)statePtr
+- (BOOL)getState:(YapDatabaseViewState * __autoreleasing *)statePtr
    forConnection:(YapDatabaseViewConnection *)viewConnection
 {
 	__block BOOL result = NO;
@@ -335,8 +335,8 @@
 /**
  * Used by YapDatabaseViewConnection to fetch & cache the values for a readWriteTransaction.
 **/
-- (void)getGrouping:(YapDatabaseViewGrouping **)groupingPtr
-            sorting:(YapDatabaseViewSorting **)sortingPtr
+- (void)getGrouping:(YapDatabaseViewGrouping * __autoreleasing *)groupingPtr
+            sorting:(YapDatabaseViewSorting * __autoreleasing *)sortingPtr
 {
 	__block YapDatabaseViewGrouping *mostRecentGrouping = nil;
 	__block YapDatabaseViewSorting  *mostRecentSorting  = nil;
