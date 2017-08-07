@@ -12,6 +12,7 @@ framework module YapDatabase {
 	module Utilities {
 		header "YapCache.h"
 		header "YapCollectionKey.h"
+    header "YapDatabaseConnectionConfig.h"
 		header "YapDatabaseQuery.h"
 		header "YapMurmurHash.h"
 		header "YapProxyObject.h"
