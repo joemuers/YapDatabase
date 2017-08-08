@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		65580CA61BF36A020055E65C /* yap_vfs_shim.h in Headers */ = {isa = PBXBuildFile; fileRef = 65580CA41BF36A020055E65C /* yap_vfs_shim.h */; };
 		65580CA81BF36AA20055E65C /* yap_vfs_shim.h in Headers */ = {isa = PBXBuildFile; fileRef = 65580CA41BF36A020055E65C /* yap_vfs_shim.h */; };
+		C725BE2F1F38B6F000198B2D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C725BE2E1F38B6F000198B2D /* CloudKit.framework */; };
+		C725BE5E1F38BA6A00198B2D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C725BE5D1F38BA6A00198B2D /* UIKit.framework */; };
+		C725BE601F38BA7100198B2D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C725BE5F1F38BA7100198B2D /* SystemConfiguration.framework */; };
 		DC1E7D101D80CC26000721B8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1E7D0F1D80CC26000721B8 /* libsqlite3.tbd */; };
 		DC302B0A1BE94F99009F8C4D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DC65216F1BCED5D100188E23 /* libsqlite3.tbd */; };
 		DC302B0B1BE94FDF009F8C4D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DC302B081BE94F31009F8C4D /* libsqlite3.tbd */; };
@@ -988,6 +991,9 @@
 
 /* Begin PBXFileReference section */
 		65580CA41BF36A020055E65C /* yap_vfs_shim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yap_vfs_shim.h; sourceTree = "<group>"; };
+		C725BE2E1F38B6F000198B2D /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
+		C725BE5D1F38BA6A00198B2D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		C725BE5F1F38BA7100198B2D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		DC1E7D031D80C901000721B8 /* YapDatabase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = YapDatabase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC1E7D0B1D80CBA3000721B8 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Framework/watchOS/Info.plist; sourceTree = SOURCE_ROOT; };
 		DC1E7D0E1D80CBED000721B8 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = module.modulemap; path = Framework/watchOS/module.modulemap; sourceTree = SOURCE_ROOT; };
@@ -1332,6 +1338,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C725BE2F1F38B6F000198B2D /* CloudKit.framework in Frameworks */,
+				C725BE5E1F38BA6A00198B2D /* UIKit.framework in Frameworks */,
+				C725BE601F38BA7100198B2D /* SystemConfiguration.framework in Frameworks */,
 				DC302B0B1BE94FDF009F8C4D /* libsqlite3.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1339,6 +1348,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C725BE2D1F38B6EF00198B2D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C725BE5F1F38BA7100198B2D /* SystemConfiguration.framework */,
+				C725BE5D1F38BA6A00198B2D /* UIKit.framework */,
+				C725BE2E1F38B6F000198B2D /* CloudKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DC1E7D041D80C901000721B8 /* watchOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1978,6 +1997,7 @@
 				DCAF524A1C4866CD00562C92 /* TestModuleMap-Shared */,
 				DC6266CA1D80D3E000557968 /* TestModuleMap-watchOS */,
 				DCF7C2AF1BCC8E610087ED39 /* Products */,
+				C725BE2D1F38B6EF00198B2D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
