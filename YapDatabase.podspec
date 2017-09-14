@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "YapDatabase"
-  s.version      = "2.9.3"
+  s.version      = "3.0.1"
   s.summary      = "A key/value store built atop sqlite for iOS & Mac."
   s.homepage     = "https://github.com/yapstudios/YapDatabase"
   s.license      = 'MIT'
@@ -33,17 +33,29 @@ Pod::Spec.new do |s|
     ss.subspec 'Core' do |ssc|
       ssc.xcconfig = { 'OTHER_CFLAGS' => '$(inherited) -DYAP_STANDARD_SQLITE' }
       ssc.library = 'sqlite3'
-      ssc.dependency 'CocoaLumberjack', '~> 2'
+      ssc.dependency 'CocoaLumberjack'
       ssc.source_files = 'YapDatabase/*.{h,m,mm,c}', 'YapDatabase/{Internal,Utilities}/*.{h,m,mm,c}', 'YapDatabase/Extensions/Protocol/**/*.{h,m,mm,c}'
       ssc.private_header_files = 'YapDatabase/Internal/*.h', 'YapDatabase/Extensions/Protocol/Internal/*.h'
     end
 
     ss.subspec 'Extensions' do |sse|
       sse.dependency 'YapDatabase/Standard/Core'
-
-      sse.subspec 'Views' do |ssee|
-        ssee.source_files = 'YapDatabase/Extensions/Views/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/Views/Internal/*.h'
+      
+      sse.subspec 'View' do |ssee|
+        ssee.source_files = 'YapDatabase/Extensions/View/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/View/Internal/*.h'
+      end
+      
+      sse.subspec 'AutoView' do |ssee|
+        ssee.dependency 'YapDatabase/Standard/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/AutoView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/AutoView/Internal/*.h'
+      end
+      
+      sse.subspec 'ManualView' do |ssee|
+        ssee.dependency 'YapDatabase/Standard/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/ManualView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/ManualView/Internal/*.h'
       end
 
       sse.subspec 'SecondaryIndex' do |ssee|
@@ -70,24 +82,21 @@ Pod::Spec.new do |s|
         ssee.source_files = 'YapDatabase/Extensions/Hooks/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/Hooks/Internal/*.h'
       end
-
-      sse.subspec 'FilteredViews' do |ssee|
-        ssee.dependency 'YapDatabase/Standard/Extensions/Views'
-        ssee.source_files = 'YapDatabase/Extensions/FilteredViews/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/FilteredViews/Internal/*.h'
+      
+      sse.subspec 'FilteredView' do |ssee|
+        ssee.dependency 'YapDatabase/Standard/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/FilteredView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/FilteredView/Internal/*.h'
       end
-
-      sse.subspec 'SearchResults' do |ssee|
-        ssee.dependency 'YapDatabase/Standard/Extensions/Views'
+      
+      sse.subspec 'SearchResultsView' do |ssee|
+        ssee.dependency 'YapDatabase/Standard/Extensions/AutoView'
         ssee.dependency 'YapDatabase/Standard/Extensions/FullTextSearch'
-        ssee.source_files = 'YapDatabase/Extensions/SearchResults/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/SearchResults/Internal/*.h'
+        ssee.source_files = 'YapDatabase/Extensions/SearchResultsView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/SearchResultsView/Internal/*.h'
       end
 
       sse.subspec 'CloudKit' do |ssee|
-        ssee.osx.deployment_target = '10.8'
-        ssee.ios.deployment_target = '6.0'
-        ssee.tvos.deployment_target = '9.0'
         ssee.source_files = 'YapDatabase/Extensions/CloudKit/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/CloudKit/Internal/*.h'
       end
@@ -105,9 +114,14 @@ Pod::Spec.new do |s|
         ssee.osx.framework   = 'SystemConfiguration'
         ssee.ios.framework   = 'SystemConfiguration'
         ssee.tvos.framework  = 'SystemConfiguration'
-        ssee.dependency 'YapDatabase/Standard/Extensions/Views'
+        ssee.dependency 'YapDatabase/Standard/Extensions/AutoView'
         ssee.source_files = 'YapDatabase/Extensions/ActionManager/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/ActionManager/Internal/*.h'
+      end
+      
+      sse.subspec 'CloudCore' do |ssee|
+        ssee.source_files = 'YapDatabase/Extensions/CloudCore/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/CloudCore/Internal/*.h'
       end
 
     end # Extensions
@@ -120,17 +134,29 @@ Pod::Spec.new do |s|
     ss.subspec 'Core' do |ssc|
       ssc.xcconfig = { 'OTHER_CFLAGS' => '$(inherited) -DSQLITE_HAS_CODEC' }
       ssc.dependency 'SQLCipher', '>= 3.4.0'
-      ssc.dependency 'CocoaLumberjack', '~> 2'
+      ssc.dependency 'CocoaLumberjack'
       ssc.source_files = 'YapDatabase/*.{h,m,mm,c}', 'YapDatabase/{Internal,Utilities}/*.{h,m,mm,c}', 'YapDatabase/Extensions/Protocol/**/*.{h,m,mm,c}'
       ssc.private_header_files = 'YapDatabase/Internal/*.h', 'YapDatabase/Extensions/Protocol/Internal/*.h'
     end
 
     ss.subspec 'Extensions' do |sse|
       sse.dependency 'YapDatabase/SQLCipher/Core'
-
-      sse.subspec 'Views' do |ssee|
-        ssee.source_files = 'YapDatabase/Extensions/Views/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/Views/Internal/*.h'
+      
+      sse.subspec 'View' do |ssee|
+        ssee.source_files = 'YapDatabase/Extensions/View/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/View/Internal/*.h'
+      end
+      
+      sse.subspec 'AutoView' do |ssee|
+        ssee.dependency 'YapDatabase/SQLCipher/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/AutoView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/AutoView/Internal/*.h'
+      end
+      
+      sse.subspec 'ManualView' do |ssee|
+        ssee.dependency 'YapDatabase/SQLCipher/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/ManualView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/ManualView/Internal/*.h'
       end
 
       sse.subspec 'SecondaryIndex' do |ssee|
@@ -157,24 +183,21 @@ Pod::Spec.new do |s|
         ssee.source_files = 'YapDatabase/Extensions/Hooks/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/Hooks/Internal/*.h'
       end
-
-      sse.subspec 'FilteredViews' do |ssee|
-        ssee.dependency 'YapDatabase/SQLCipher/Extensions/Views'
-        ssee.source_files = 'YapDatabase/Extensions/FilteredViews/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/FilteredViews/Internal/*.h'
+      
+      sse.subspec 'FilteredView' do |ssee|
+        ssee.dependency 'YapDatabase/SQLCipher/Extensions/View'
+        ssee.source_files = 'YapDatabase/Extensions/FilteredView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/FilteredView/Internal/*.h'
       end
-
-      sse.subspec 'SearchResults' do |ssee|
-        ssee.dependency 'YapDatabase/SQLCipher/Extensions/Views'
+      
+      sse.subspec 'SearchResultsView' do |ssee|
+        ssee.dependency 'YapDatabase/SQLCipher/Extensions/AutoView'
         ssee.dependency 'YapDatabase/SQLCipher/Extensions/FullTextSearch'
-        ssee.source_files = 'YapDatabase/Extensions/SearchResults/**/*.{h,m,mm,c}'
-        ssee.private_header_files = 'YapDatabase/Extensions/SearchResults/Internal/*.h'
+        ssee.source_files = 'YapDatabase/Extensions/SearchResultsView/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/SearchResultsView/Internal/*.h'
       end
 
       sse.subspec 'CloudKit' do |ssee|
-        ssee.osx.deployment_target = '10.8'
-        ssee.ios.deployment_target = '6.0'
-        ssee.tvos.deployment_target = '9.0'
         ssee.source_files = 'YapDatabase/Extensions/CloudKit/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/CloudKit/Internal/*.h'
       end
@@ -192,9 +215,14 @@ Pod::Spec.new do |s|
         ssee.osx.framework   = 'SystemConfiguration'
         ssee.ios.framework   = 'SystemConfiguration'
         ssee.tvos.framework  = 'SystemConfiguration'
-        ssee.dependency 'YapDatabase/SQLCipher/Extensions/Views'
+        ssee.dependency 'YapDatabase/SQLCipher/Extensions/AutoView'
         ssee.source_files = 'YapDatabase/Extensions/ActionManager/**/*.{h,m,mm,c}'
         ssee.private_header_files = 'YapDatabase/Extensions/ActionManager/Internal/*.h'
+      end
+      
+      sse.subspec 'CloudCore' do |ssee|
+        ssee.source_files = 'YapDatabase/Extensions/CloudCore/**/*.{h,m,mm,c}'
+        ssee.private_header_files = 'YapDatabase/Extensions/CloudCore/Internal/*.h'
       end
 
     end # Extensions
