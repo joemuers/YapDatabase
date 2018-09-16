@@ -351,7 +351,7 @@
 	}
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		if (rowidPtr) *rowidPtr = [cachedRowid longLongValue];
 		return YES;
@@ -813,7 +813,7 @@
 		return object;
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		int64_t rowid = [cachedRowid longLongValue];
 		
@@ -922,7 +922,7 @@
 	}
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		int64_t rowid = [cachedRowid longLongValue];
 		
@@ -1068,7 +1068,7 @@
 		// Fetch via query.
 		
 		NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-		if (cachedRowid)
+		if (cachedRowid != nil)
 		{
 			int64_t rowid = [cachedRowid longLongValue];
 			
@@ -1237,7 +1237,7 @@
 	YapCollectionKey *cacheKey = [[YapCollectionKey alloc] initWithCollection:collection key:key];
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		int64_t rowid = [cachedRowid longLongValue];
 		
@@ -1332,7 +1332,7 @@
 	YapCollectionKey *cacheKey = [[YapCollectionKey alloc] initWithCollection:collection key:key];
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		int64_t rowid = [cachedRowid longLongValue];
 		
@@ -1438,7 +1438,7 @@
 	YapCollectionKey *cacheKey = [[YapCollectionKey alloc] initWithCollection:collection key:key];
 	
 	NSNumber *cachedRowid = [connection->keyCache keyForObject:cacheKey];
-	if (cachedRowid)
+	if (cachedRowid != nil)
 	{
 		int64_t rowid = [cachedRowid longLongValue];
 		
@@ -4133,7 +4133,7 @@
 		// Bind parameters.
 		// And move objects from the missingIndexes array into keyIndexDict.
 		
-		if (keyIndexDict)
+		if (!keyIndexDict)
 			keyIndexDict = [NSMutableDictionary dictionaryWithCapacity:numKeyParams];
 		else
 			[keyIndexDict removeAllObjects];
@@ -4267,6 +4267,8 @@
 	NSDictionary *extConnections = [connection extensions];
 	
 	[extConnections enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL __unused *stop) {
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wimplicit-retain-self"
 		
 		__unsafe_unretained NSString *extName = key;
 		__unsafe_unretained YapDatabaseExtensionConnection *extConnection = obj;
@@ -4284,6 +4286,8 @@
 				[extensions setObject:extTransaction forKey:extName];
 			}
 		}
+		
+	#pragma clang diagnostic pop
 	}];
 	
 	if (orderedExtensions == nil)
@@ -4789,14 +4793,14 @@
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
 		if (found)
-			[extTransaction handleWillUpdateObject:object
-			                      forCollectionKey:cacheKey
-			                          withMetadata:metadata
-			                                 rowid:rowid];
+			[extTransaction willUpdateObject:object
+			                forCollectionKey:cacheKey
+			                    withMetadata:metadata
+			                           rowid:rowid];
 		else
-			[extTransaction handleWillInsertObject:object
-			                      forCollectionKey:cacheKey
-			                          withMetadata:metadata];
+			[extTransaction willInsertObject:object
+			                forCollectionKey:cacheKey
+			                    withMetadata:metadata];
 	}
 	
 	BOOL set = YES;
@@ -4897,6 +4901,10 @@
 			_object = [YapNull null];
 	}
 	
+	if (!found) {
+		[connection->insertedKeys addObject:cacheKey];
+	}
+	
 	[connection->objectCache setObject:object forKey:cacheKey];
 	[connection->objectChanges setObject:_object forKey:cacheKey];
 	
@@ -4929,15 +4937,15 @@
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
 		if (found)
-			[extTransaction handleUpdateObject:object
-			                  forCollectionKey:cacheKey
-			                      withMetadata:metadata
-			                             rowid:rowid];
+			[extTransaction didUpdateObject:object
+			               forCollectionKey:cacheKey
+			                   withMetadata:metadata
+			                          rowid:rowid];
 		else
-			[extTransaction handleInsertObject:object
-			                  forCollectionKey:cacheKey
-			                      withMetadata:metadata
-			                             rowid:rowid];
+			[extTransaction didInsertObject:object
+			               forCollectionKey:cacheKey
+			                   withMetadata:metadata
+			                          rowid:rowid];
 	}
 	
 	if (connection->database->objectPostSanitizer)
@@ -5074,7 +5082,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleWillReplaceObject:object forCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction willReplaceObject:object forCollectionKey:cacheKey withRowid:rowid];
 	}
 	
 	// UPDATE "database2" SET "data" = ? WHERE "rowid" = ?;
@@ -5123,7 +5131,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleReplaceObject:object forCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didReplaceObject:object forCollectionKey:cacheKey withRowid:rowid];
 	}
 	
 	if (connection->database->objectPostSanitizer)
@@ -5252,7 +5260,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleWillReplaceMetadata:metadata forCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction willReplaceMetadata:metadata forCollectionKey:cacheKey withRowid:rowid];
 	}
 	
 	// UPDATE "database2" SET "metadata" = ? WHERE "rowid" = ?;
@@ -5311,7 +5319,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleReplaceMetadata:metadata forCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didReplaceMetadata:metadata forCollectionKey:cacheKey withRowid:rowid];
 	}
 	
 	if (metadata && connection->database->metadataPostSanitizer)
@@ -5338,7 +5346,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleTouchObjectForCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didTouchObjectForCollectionKey:cacheKey withRowid:rowid];
 	}
 }
 
@@ -5356,7 +5364,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleTouchMetadataForCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didTouchMetadataForCollectionKey:cacheKey withRowid:rowid];
 	}
 }
 
@@ -5377,7 +5385,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleTouchRowForCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didTouchRowForCollectionKey:cacheKey withRowid:rowid];
 	}
 }
 
@@ -5400,7 +5408,7 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleWillRemoveObjectForCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction willRemoveObjectForCollectionKey:cacheKey withRowid:rowid];
 	}
 	
 	// DELETE FROM "database" WHERE "rowid" = ?;
@@ -5432,12 +5440,13 @@
 	
 	[connection->objectChanges removeObjectForKey:cacheKey];
 	[connection->metadataChanges removeObjectForKey:cacheKey];
+	[connection->insertedKeys removeObject:cacheKey];
 	[connection->removedKeys addObject:cacheKey];
 	[connection->removedRowids addObject:@(rowid)];
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleRemoveObjectForCollectionKey:cacheKey withRowid:rowid];
+		[extTransaction didRemoveObjectForCollectionKey:cacheKey withRowid:rowid];
 	}
 }
 
@@ -5606,9 +5615,9 @@
 			
             for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
             {
-                [extTransaction handleWillRemoveObjectsForKeys:foundKeys
-                                                  inCollection:collection
-                                                    withRowids:foundRowids];
+                [extTransaction willRemoveObjectsForKeys:foundKeys
+                                            inCollection:collection
+                                              withRowids:foundRowids];
             }
 			
 			for (i = 0; i < foundCount; i++)
@@ -5643,14 +5652,15 @@
 				
 				[connection->objectChanges removeObjectForKey:cacheKey];
 				[connection->metadataChanges removeObjectForKey:cacheKey];
+				[connection->insertedKeys removeObject:cacheKey];
 				[connection->removedKeys addObject:cacheKey];
 			}
 			
 			for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 			{
-				[extTransaction handleRemoveObjectsForKeys:foundKeys
-				                              inCollection:collection
-				                                withRowids:foundRowids];
+				[extTransaction didRemoveObjectsForKeys:foundKeys
+				                           inCollection:collection
+				                             withRowids:foundRowids];
 			}
 			
 		}
@@ -5749,6 +5759,24 @@
 		}
 		
 		[connection->metadataChanges removeObjectsForKeys:toRemove];
+		[toRemove removeAllObjects];
+	}
+	
+	{ // insertedKeys
+		
+		for (NSString *key in connection->insertedKeys)
+		{
+			__unsafe_unretained YapCollectionKey *cacheKey = (YapCollectionKey *)key;
+			if ([cacheKey.collection isEqualToString:collection])
+			{
+				[toRemove addObject:cacheKey];
+			}
+		}
+		
+		for (NSString *cacheKey in toRemove)
+		{
+			[connection->insertedKeys removeObject:cacheKey];
+		}
 	}
 	
 	[connection->removedCollections addObject:collection];
@@ -5896,12 +5924,12 @@
 				return;
 			}
             
-            for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
-            {
-                [extTransaction handleWillRemoveObjectsForKeys:foundKeys
-                                                  inCollection:collection
-                                                    withRowids:foundRowids];
-            }
+			for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
+			{
+				[extTransaction willRemoveObjectsForKeys:foundKeys
+				                            inCollection:collection
+				                              withRowids:foundRowids];
+			}
 			
 			for (i = 0; i < foundCount; i++)
 			{
@@ -5927,9 +5955,9 @@
 			
 			for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 			{
-				[extTransaction handleRemoveObjectsForKeys:foundKeys
-				                              inCollection:collection
-				                                withRowids:foundRowids];
+				[extTransaction didRemoveObjectsForKeys:foundKeys
+				                           inCollection:collection
+				                             withRowids:foundRowids];
 			}
 		}
 		
@@ -5950,7 +5978,7 @@
 
     for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
     {
-        [extTransaction handleWillRemoveAllObjectsInAllCollections];
+        [extTransaction willRemoveAllObjectsInAllCollections];
     }
 	
 	int status = sqlite3_step(statement);
@@ -5970,6 +5998,7 @@
 	
 	[connection->objectChanges removeAllObjects];
 	[connection->metadataChanges removeAllObjects];
+	[connection->insertedKeys removeAllObjects];
 	[connection->removedKeys removeAllObjects];
 	[connection->removedCollections removeAllObjects];
 	[connection->removedRowids removeAllObjects];
@@ -5977,8 +6006,41 @@
 	
 	for (YapDatabaseExtensionTransaction *extTransaction in [self orderedExtensions])
 	{
-		[extTransaction handleRemoveAllObjectsInAllCollections];
+		[extTransaction didRemoveAllObjectsInAllCollections];
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark Completion
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * It's often useful to compose code into various reusable functions which take a
+ * YapDatabaseReadWriteTransaction as a parameter. However, the ability to compose code
+ * in this manner is often prevented by the need to perform a task after the commit has finished.
+ * 
+ * The end result is that programmers either end up copy-pasting code,
+ * or hack together a solution that involves functions returning completion blocks.
+ *
+ * This method solves the dilemma by allowing encapsulated code to register its own commit completionBlock.
+**/
+- (void)addCompletionQueue:(dispatch_queue_t)completionQueue
+           completionBlock:(dispatch_block_t)completionBlock
+{
+	if (completionBlock == nil)
+		return;
+	
+	if (completionQueue == nil)
+		completionQueue = dispatch_get_main_queue();
+	
+	if (completionQueueStack == nil)
+		completionQueueStack = [[NSMutableArray alloc] initWithCapacity:1];
+	
+	if (completionBlockStack == nil)
+		completionBlockStack = [[NSMutableArray alloc] initWithCapacity:1];
+	
+	[completionQueueStack addObject:completionQueue];
+	[completionBlockStack addObject:completionBlock];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

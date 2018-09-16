@@ -176,8 +176,7 @@
 	NSUInteger queryStringLength = [queryString length];
 	
 	NSRange searchRange = NSMakeRange(0, queryStringLength);
-	NSRange paramRange = [queryString rangeOfString:@"?" options:(NSStringCompareOptions)0
-                                            range:searchRange];
+	NSRange paramRange = [queryString rangeOfString:@"?" options:0 range:searchRange];
 	
 	while (paramRange.location != NSNotFound)
 	{
@@ -188,8 +187,7 @@
 		searchRange.location = paramRange.location + 1;
 		searchRange.length = queryStringLength - searchRange.location;
 		
-		paramRange = [queryString rangeOfString:@"?" options:(NSStringCompareOptions)0
-                                      range:searchRange];
+		paramRange = [queryString rangeOfString:@"?" options:0 range:searchRange];
 	}
 	
 	return paramLocations;
@@ -198,8 +196,8 @@
 /**
  * Utility method to parse format & args.
 **/
-+ (void)getParameters:(NSArray * __autoreleasing *)parametersPtr
-       paramLocations:(NSArray * __autoreleasing *)paramLocationsPtr
++ (void)getParameters:(NSArray **)parametersPtr
+       paramLocations:(NSArray **)paramLocationsPtr
            fromFormat:(NSString *)format
                  args:(va_list)args
 {
@@ -249,8 +247,7 @@
 	
 	NSMutableDictionary *paramIndexToArrayCountMap = [NSMutableDictionary dictionary];
 	
-	[inQueryParameters enumerateObjectsUsingBlock:^(id param, NSUInteger paramIndex,
-	                                                BOOL __unused *stop) {
+	[inQueryParameters enumerateObjectsUsingBlock:^(id param, NSUInteger paramIndex, BOOL *stop) {
 		
 		if ([param isKindOfClass:[NSArray class]])
 		{
@@ -290,9 +287,14 @@
 		
 		__block NSUInteger unpackingOffset = 0;
 		
-		[paramIndexToArrayCountMap enumerateKeysAndObjectsUsingBlock:
-		    ^(NSNumber *paramIndexNum, NSNumber *arrayCountNum, BOOL __unused *stop)
+		NSArray *sortedKeys = [paramIndexToArrayCountMap.allKeys sortedArrayUsingDescriptors:({
+			NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"integerValue" ascending:YES];
+			@[sortDescriptor];
+		})];
+		[sortedKeys enumerateObjectsUsingBlock:^(NSNumber * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop)
 		{
+			NSNumber *paramIndexNum = obj;
+			NSNumber *arrayCountNum = paramIndexToArrayCountMap[obj];
 			NSUInteger arrayCount = [arrayCountNum unsignedIntegerValue];
 			
 			NSMutableString *unpackedParamsStr = [NSMutableString stringWithCapacity:(arrayCount * 2)];
